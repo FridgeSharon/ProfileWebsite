@@ -9,7 +9,7 @@ import { Profile } from '../models/profile';
 @Injectable({ providedIn: 'root' })
 export class ContentService {
   private http = inject(HttpClient);
-  private baseUrl = environment.apiBaseUrl;
+  private baseUrl = (environment.apiBaseUrl || '').replace(/\/+$/, '');
 
   profile = signal<Profile | null>(null);
   projects = signal<Project[]>([]);

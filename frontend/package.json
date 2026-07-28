@@ -7,7 +7,7 @@
   "scripts": {
     "ng": "ng",
     "start": "ng serve",
-    "build": "node -e \"if(process.env.BACKEND_URL) require('fs').writeFileSync('src/environments/environment.prod.ts', 'export const environment = { production: true, apiBaseUrl: \\\"' + process.env.BACKEND_URL + '\\\" };\\n')\" && ng build && node -e \"if(require('fs').existsSync('src/_redirects')) require('fs').copyFileSync('src/_redirects', 'dist/frontend/browser/_redirects'); else require('fs').writeFileSync('dist/frontend/browser/_redirects', '/* /index.html 200\\n');\"",
+    "build": "node -e \"if(process.env.BACKEND_URL) require('fs').writeFileSync('src/environments/environment.prod.ts', 'export const environment = { production: true, apiBaseUrl: \\\"' + process.env.BACKEND_URL.replace(/\\/+$/, '') + '\\\" };\\n')\" && npx ng build && node -e \"if(require('fs').existsSync('src/_redirects')) require('fs').copyFileSync('src/_redirects', 'dist/frontend/browser/_redirects'); else require('fs').writeFileSync('dist/frontend/browser/_redirects', '/* /index.html 200\\n');\"",
     "watch": "ng build --watch --configuration development"
   },
   "private": true,

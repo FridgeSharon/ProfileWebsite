@@ -1,5 +1,6 @@
 import { Injectable, OnDestroy, signal, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
+import { retry, timer } from 'rxjs';
 import { environment } from '../../environments/environment';
 import { Stats, StatMetric } from '../models/stats';
 
@@ -13,7 +14,7 @@ export class StatsService implements OnDestroy {
   githubForks = signal<{ total: number }>({ total: 0 });
 
   private eventSource: EventSource | null = null;
-  private baseUrl = environment.apiBaseUrl;
+  private baseUrl = (environment.apiBaseUrl || '').replace(/\/+$/, '');
   private retryCount = 0;
   private retryTimeout: ReturnType<typeof setTimeout> | null = null;
   private visitorId: string;
@@ -51,22 +52,38 @@ export class StatsService implements OnDestroy {
   }
 
   private trackEvent(eventType: 'visitor' | 'linkedin' | 'source_code') {
-    this.http.post(`${this.baseUrl}/api/stats/track`, {
-      eventType,
-      visitorId: this.visitorId,
-    }).subscribe({
-      error: (err) => console.warn(`Failed to track event ${eventType}:`, err),
-    });
+    this.http
+      .post(`${this.baseUrl}/api/stats/track`, {
+        eventType,
+        visitorId: this.visitorId,
+      })
+      .pipe(
+        retry({
+          count: 5,
+          delay: (error, retryCount) => timer(Math.min(2000 * Math.pow(2, retryCount - 1), 15000)),
+        }),
+      )
+      .subscribe({
+        error: (err) => console.warn(`Failed to track event ${eventType}:`, err),
+      });
   }
 
   private loadInitialStats() {
-    this.http.get<Stats>(`${this.baseUrl}/api/stats/summary`).subscribe({
-      next: (data) => {
-        this.updateSignals(data);
-        this.connectStream();
-      },
-      error: () => this.connectStream(),
-    });
+    this.http
+      .get<Stats>(`${this.baseUrl}/api/stats/summary`)
+      .pipe(
+        retry({
+          count: 3,
+          delay: (error, retryCount) => timer(Math.min(2000 * Math.pow(2, retryCount - 1), 10000)),
+        }),
+      )
+      .subscribe({
+        next: (data) => {
+          this.updateSignals(data);
+          this.connectStream();
+        },
+        error: () => this.connectStream(),
+      });
   }
 
   private connectStream() {
@@ -75,8 +92,10 @@ export class StatsService implements OnDestroy {
     this.eventSource.onmessage = (event) => {
       this.retryCount = 0;
       try {
-        const parsed: Stats = JSON.parse(event.data);
-        this.updateSignals(parsed);
+        const parsed = JSON.parse(event.data);
+        if (parsed && !parsed.ping) {
+          this.updateSignals(parsed as Stats);
+        }
       } catch (e) {
         console.warn('Failed to parse SSE payload:', e);
       }
@@ -95,7 +114,7 @@ export class StatsService implements OnDestroy {
 
   private reconnect() {
     this.cleanupStream();
-    const delay = Math.min(1000 * 2 ** this.retryCount, 30000);
+    const delay = Math.min(1000 * Math.pow(2, this.retryCount), 30000);
     this.retryTimeout = setTimeout(() => this.connectStream(), delay);
     this.retryCount++;
   }

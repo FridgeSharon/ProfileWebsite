@@ -1,6 +1,6 @@
-import { Controller, Get, Post, Body, Sse, MessageEvent } from '@nestjs/common';
+import { Controller, Get, Post, Body, Sse, MessageEvent, Header } from '@nestjs/common';
 import { IsString, IsNotEmpty, MaxLength } from 'class-validator';
-import { Observable } from 'rxjs';
+import { Observable, interval, merge } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { StatsService, StatsPayload } from './stats.service';
 
@@ -32,9 +32,19 @@ export class StatsController {
   }
 
   @Sse('stream')
+  @Header('Content-Type', 'text/event-stream')
+  @Header('Cache-Control', 'no-cache, no-transform')
+  @Header('X-Accel-Buffering', 'no')
+  @Header('Connection', 'keep-alive')
   getStream(): Observable<MessageEvent> {
-    return this.statsService
+    const ping$ = interval(15000).pipe(
+      map(() => ({ data: { ping: true } } as MessageEvent)),
+    );
+
+    const data$ = this.statsService
       .getStream()
-      .pipe(map((payload) => ({ data: payload })));
+      .pipe(map((payload) => ({ data: payload } as MessageEvent)));
+
+    return merge(data$, ping$);
   }
 }

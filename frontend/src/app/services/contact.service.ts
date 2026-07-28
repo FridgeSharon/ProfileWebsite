@@ -6,7 +6,7 @@ import { Observable } from 'rxjs';
 @Injectable({ providedIn: 'root' })
 export class ContactService {
   private http = inject(HttpClient);
-  private baseUrl = environment.apiBaseUrl;
+  private baseUrl = (environment.apiBaseUrl || '').replace(/\/+$/, '');
 
   submitContact(contact: string): Observable<void> {
     return this.http.post<void>(`${this.baseUrl}/api/contact/request`, { contact });

@@ -16,7 +16,12 @@ async function bootstrap() {
   app.use(
     compression({
       filter: (req: Request, res: Response) => {
-        if (req.url?.includes('/stats/stream')) return false;
+        if (
+          req.url?.includes('/stats/stream') ||
+          req.headers.accept?.includes('text/event-stream')
+        ) {
+          return false;
+        }
         return compression.filter(req, res);
       },
     }),
@@ -25,18 +30,23 @@ async function bootstrap() {
   const frontendOrigin = configService.get<string>('FRONTEND_ORIGIN', '*');
   const allowedOrigins = frontendOrigin
     .split(',')
-    .map((o) => o.trim().toLowerCase().replace(/\/$/, ''));
+    .map((o) => o.trim().toLowerCase().replace(/\/+$/, ''));
 
   app.enableCors({
     origin: (origin, callback) => {
+      if (!origin) {
+        return callback(null, true);
+      }
+      const normalizedOrigin = origin.toLowerCase().replace(/\/+$/, '');
       if (
-        !origin ||
         frontendOrigin === '*' ||
-        allowedOrigins.includes(origin.toLowerCase().replace(/\/$/, ''))
+        allowedOrigins.includes('*') ||
+        allowedOrigins.includes(normalizedOrigin) ||
+        normalizedOrigin.endsWith('.pages.dev')
       ) {
-        callback(null, true);
+        callback(null, origin);
       } else {
-        callback(null, true);
+        callback(null, origin);
       }
     },
     credentials: true,
