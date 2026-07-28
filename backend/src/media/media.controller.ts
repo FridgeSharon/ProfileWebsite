@@ -19,7 +19,14 @@ export class MediaController {
     @Param('filename') filename: string,
     @Res({ passthrough: true }) res: Response,
   ): StreamableFile {
-    const basePath = path.resolve(process.cwd(), 'media', 'images');
+    const possibleBasePaths = [
+      path.resolve(process.cwd(), 'media', 'images'),
+      path.resolve(process.cwd(), 'backend', 'media', 'images'),
+      path.resolve(__dirname, '..', '..', '..', 'media', 'images'),
+      path.resolve(__dirname, '..', '..', 'media', 'images'),
+    ];
+
+    const basePath = possibleBasePaths.find((p) => fs.existsSync(p)) || possibleBasePaths[0];
     let filePath = path.resolve(basePath, filename);
 
     if (!filePath.startsWith(basePath + path.sep)) {

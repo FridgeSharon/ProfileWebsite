@@ -1,6 +1,7 @@
 import { Component, ChangeDetectionStrategy, inject, OnInit } from '@angular/core';
 import { ContentService } from '../../services/content.service';
 import { StatsService } from '../../services/stats.service';
+import { environment } from '../../environments/environment';
 
 @Component({
   selector: 'app-cv',
@@ -44,8 +45,17 @@ import { StatsService } from '../../services/stats.service';
               <div class="exp-item">
                 <div class="exp-header">
                   <div class="exp-title-row">
-                    @if (exp.companyLogoUrl) {
-                      <img [src]="exp.companyLogoUrl" [alt]="exp.company" class="cv-company-logo">
+                    @if (exp.companyLogoUrl && !failedLogos.has(exp.id)) {
+                      <img
+                        [src]="getCompanyLogoUrl(exp.companyLogoUrl)"
+                        [alt]="exp.company"
+                        class="cv-company-logo"
+                        (error)="failedLogos.add(exp.id)"
+                      >
+                    } @else {
+                      <div class="cv-logo-placeholder">
+                        {{ getInitials(exp.company) }}
+                      </div>
                     }
                     <div>
                       <h3>{{ exp.role }}</h3>
@@ -213,6 +223,20 @@ import { StatsService } from '../../services/stats.service';
       font-size: 0.88rem;
       color: #64748b;
     }
+    .cv-logo-placeholder {
+      width: 36px;
+      height: 36px;
+      border-radius: 8px;
+      background: linear-gradient(135deg, #0a66c2, #3b82f6);
+      color: #ffffff;
+      font-weight: 700;
+      font-size: 0.85rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border: 1px solid #cbd5e1;
+      flex-shrink: 0;
+    }
     @media print {
       .cv-page { padding: 0; background: white; }
       .cv-container { box-shadow: none; padding: 0; max-width: 100%; }
@@ -223,11 +247,26 @@ import { StatsService } from '../../services/stats.service';
 export class CvComponent implements OnInit {
   content = inject(ContentService);
   stats = inject(StatsService);
+  failedLogos = new Set<number>();
 
   ngOnInit() {
     this.content.loadProfile();
     this.content.loadProjects();
     this.content.loadSkills();
     this.content.loadExperience();
+  }
+
+  getCompanyLogoUrl(logoUrl: string | undefined): string {
+    if (!logoUrl) return '';
+    if (logoUrl.startsWith('http://') || logoUrl.startsWith('https://')) return logoUrl;
+    if (logoUrl.startsWith('/')) return `${environment.apiBaseUrl}${logoUrl}`;
+    return `${environment.apiBaseUrl}/api/media/images/${logoUrl}`;
+  }
+
+  getInitials(name: string): string {
+    if (!name) return '??';
+    const parts = name.trim().split(/\s+/);
+    if (parts.length >= 2) return (parts[0][0] + parts[1][0]).toUpperCase();
+    return name.substring(0, 2).toUpperCase();
   }
 }

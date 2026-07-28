@@ -28,12 +28,14 @@ COPY backend/package*.json ./backend/
 # Install production dependencies only (including sqlite runtime)
 RUN npm ci --workspace=backend --only=production
 
-# Copy compiled dist and initial data from builder
+# Copy compiled dist, initial data, and media assets from builder
 COPY --from=builder /app/backend/dist ./backend/dist
 COPY --from=builder /app/backend/data ./backend/data
+COPY --from=builder /app/backend/media ./backend/media
+COPY --from=builder /app/backend/media ./media
 
 # Create directory for persistent SQLite storage
-RUN mkdir -p /app/backend/data
+RUN mkdir -p /app/backend/data /app/backend/media /app/media
 
 EXPOSE 3000
 
