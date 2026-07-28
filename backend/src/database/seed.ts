@@ -7,6 +7,13 @@ import { ExperienceEntry } from '../content/entities/experience-entry.entity';
 import { Profile } from '../content/entities/profile.entity';
 import { ContactRequest } from '../contact/entities/contact-request.entity';
 
+interface SeedData {
+  profile?: Partial<Profile>;
+  projects?: Partial<Project>[];
+  skills?: Partial<Skill>[];
+  experience?: Partial<ExperienceEntry>[];
+}
+
 async function seed() {
   const dbPath = process.env.DB_PATH || './data/app.sqlite';
   const dbDir = path.dirname(dbPath);
@@ -29,10 +36,17 @@ async function seed() {
   const skillRepo = dataSource.getRepository(Skill);
   const experienceRepo = dataSource.getRepository(ExperienceEntry);
 
-  let seedData: any = null;
+  let seedData: SeedData | null = null;
   const customSeedPath = path.join(dbDir, 'cv-seed.json');
   if (fs.existsSync(customSeedPath)) {
-    seedData = JSON.parse(fs.readFileSync(customSeedPath, 'utf8'));
+    try {
+      seedData = JSON.parse(
+        fs.readFileSync(customSeedPath, 'utf8'),
+      ) as SeedData;
+    } catch (e) {
+      console.error(`Failed to parse ${customSeedPath}:`, e);
+      process.exit(1);
+    }
   }
 
   const profileCount = await profileRepo.count();
@@ -40,7 +54,8 @@ async function seed() {
     const profileItem = seedData?.profile || {
       name: 'Developer Portfolio',
       title: 'Full Stack Engineer',
-      tagline: 'Building modern, high-performance web applications and services.',
+      tagline:
+        'Building modern, high-performance web applications and services.',
       location: 'Global',
       linkedinUrl: null,
       githubUrl: null,
@@ -53,8 +68,22 @@ async function seed() {
   const projectCount = await projectRepo.count();
   if (projectCount === 0) {
     const projectsList = seedData?.projects || [
-      { title: 'Project 1', description: 'Sample web application built with modern architecture.', technologies: 'TypeScript, Angular, NestJS', imageFilename: 'placeholder.svg', liveUrl: null, repoUrl: null },
-      { title: 'Project 2', description: 'Scalable backend API service.', technologies: 'Node.js, PostgreSQL, Docker', imageFilename: 'placeholder.svg', liveUrl: null, repoUrl: null },
+      {
+        title: 'Project 1',
+        description: 'Sample web application built with modern architecture.',
+        technologies: 'TypeScript, Angular, NestJS',
+        imageFilename: 'placeholder.svg',
+        liveUrl: null,
+        repoUrl: null,
+      },
+      {
+        title: 'Project 2',
+        description: 'Scalable backend API service.',
+        technologies: 'Node.js, PostgreSQL, Docker',
+        imageFilename: 'placeholder.svg',
+        liveUrl: null,
+        repoUrl: null,
+      },
     ];
     await projectRepo.save(projectsList);
   }
@@ -72,7 +101,13 @@ async function seed() {
   const experienceCount = await experienceRepo.count();
   if (experienceCount === 0) {
     const experienceList = seedData?.experience || [
-      { role: 'Software Engineer', company: 'Tech Corp', startDate: '2022-01', endDate: null, description: 'Developing web applications and cloud integrations.' },
+      {
+        role: 'Software Engineer',
+        company: 'Tech Corp',
+        startDate: '2022-01',
+        endDate: null,
+        description: 'Developing web applications and cloud integrations.',
+      },
     ];
     await experienceRepo.save(experienceList);
   }
@@ -80,4 +115,7 @@ async function seed() {
   await dataSource.destroy();
 }
 
-seed().catch(console.error);
+seed().catch((err) => {
+  console.error(err);
+  process.exit(1);
+});

@@ -1,4 +1,4 @@
-import { Injectable, BadRequestException } from '@nestjs/common';
+import { Injectable, BadRequestException, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { ConfigService } from '@nestjs/config';
@@ -9,6 +9,7 @@ import { StatsService } from '../stats/stats.service';
 
 @Injectable()
 export class ContactService {
+  private readonly logger = new Logger(ContactService.name);
   private transporter: nodemailer.Transporter;
 
   constructor(
@@ -29,7 +30,7 @@ export class ContactService {
 
   isValidContact(value: string): boolean {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    const phoneRegex = /^\+?[\d\s-]{7,}$/;
+    const phoneRegex = /^\+?[\d\s-]{7,20}$/;
     return emailRegex.test(value) || phoneRegex.test(value);
   }
 
@@ -48,8 +49,10 @@ export class ContactService {
         subject: 'New Contact Request',
         text: `New contact request received from: ${dto.contact}`,
       });
+      request.notificationSent = true;
+      await this.contactRepository.save(request);
     } catch (e) {
-      console.error('Failed to send email:', e);
+      this.logger.error('Failed to send email:', e);
     }
 
     await this.statsService.recordRequest();

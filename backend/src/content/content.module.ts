@@ -8,7 +8,9 @@ import { ContentService } from './content.service';
 import { ContentController } from './content.controller';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Project, Skill, ExperienceEntry, Profile])],
+  imports: [
+    TypeOrmModule.forFeature([Project, Skill, ExperienceEntry, Profile]),
+  ],
   providers: [ContentService],
   controllers: [ContentController],
 })

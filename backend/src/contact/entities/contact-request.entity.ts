@@ -1,4 +1,10 @@
-import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn } from 'typeorm';
+import {
+  Entity,
+  PrimaryGeneratedColumn,
+  Column,
+  CreateDateColumn,
+  Index,
+} from 'typeorm';
 
 @Entity()
 export class ContactRequest {
@@ -8,6 +14,10 @@ export class ContactRequest {
   @Column()
   contact: string;
 
+  @Index()
   @CreateDateColumn()
   submittedAt: Date;
+
+  @Column({ default: false })
+  notificationSent: boolean;
 }

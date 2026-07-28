@@ -15,20 +15,37 @@ export class ContentService {
   projects = signal<Project[]>([]);
   skills = signal<Skill[]>([]);
   experience = signal<ExperienceEntry[]>([]);
+  loadError = signal<string | null>(null);
 
   loadProfile(): void {
-    this.http.get<Profile | null>(`${this.baseUrl}/api/profile`).subscribe(data => this.profile.set(data));
+    if (this.profile()) return;
+    this.http.get<Profile | null>(`${this.baseUrl}/api/profile`).subscribe({
+      next: (data: Profile | null) => this.profile.set(data),
+      error: () => this.loadError.set('Failed to load content. Please refresh.')
+    });
   }
 
   loadProjects(): void {
-    this.http.get<Project[]>(`${this.baseUrl}/api/projects`).subscribe(data => this.projects.set(data));
+    if (this.projects().length) return;
+    this.http.get<Project[]>(`${this.baseUrl}/api/projects`).subscribe({
+      next: (data: Project[]) => this.projects.set(data),
+      error: () => this.loadError.set('Failed to load content. Please refresh.')
+    });
   }
 
   loadSkills(): void {
-    this.http.get<Skill[]>(`${this.baseUrl}/api/skills`).subscribe(data => this.skills.set(data));
+    if (this.skills().length) return;
+    this.http.get<Skill[]>(`${this.baseUrl}/api/skills`).subscribe({
+      next: (data: Skill[]) => this.skills.set(data),
+      error: () => this.loadError.set('Failed to load content. Please refresh.')
+    });
   }
 
   loadExperience(): void {
-    this.http.get<ExperienceEntry[]>(`${this.baseUrl}/api/experience`).subscribe(data => this.experience.set(data));
+    if (this.experience().length) return;
+    this.http.get<ExperienceEntry[]>(`${this.baseUrl}/api/experience`).subscribe({
+      next: (data: ExperienceEntry[]) => this.experience.set(data),
+      error: () => this.loadError.set('Failed to load content. Please refresh.')
+    });
   }
 }

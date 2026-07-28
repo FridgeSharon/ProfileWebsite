@@ -1,7 +1,7 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, OnModuleInit, OnModuleDestroy } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, MoreThanOrEqual } from 'typeorm';
-import { Subject, Observable } from 'rxjs';
+import { ReplaySubject, Observable } from 'rxjs';
 import { ContactRequest } from '../contact/entities/contact-request.entity';
 
 export interface StatsPayload {
@@ -10,20 +10,29 @@ export interface StatsPayload {
 }
 
 @Injectable()
-export class StatsService {
-  private readonly subject = new Subject<StatsPayload>();
+export class StatsService implements OnModuleInit, OnModuleDestroy {
+  private readonly subject = new ReplaySubject<StatsPayload>(1);
 
   constructor(
     @InjectRepository(ContactRequest)
     private readonly contactRepository: Repository<ContactRequest>,
   ) {}
 
+  async onModuleInit() {
+    const summary = await this.getSummary();
+    this.subject.next(summary);
+  }
+
+  onModuleDestroy() {
+    this.subject.complete();
+  }
+
   async getSummary(): Promise<StatsPayload> {
     const total = await this.contactRepository.count();
-    
+
     const startOfToday = new Date();
     startOfToday.setHours(0, 0, 0, 0);
-    
+
     const today = await this.contactRepository.count({
       where: {
         submittedAt: MoreThanOrEqual(startOfToday),

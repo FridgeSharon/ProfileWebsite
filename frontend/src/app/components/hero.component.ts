@@ -8,7 +8,6 @@ import { ContentService } from '../services/content.service';
   imports: [LiveStatsBadgeComponent],
   template: `
     <section class="hero">
-      <div class="particles"></div>
       <div class="content">
         <app-live-stats-badge class="badge"></app-live-stats-badge>
         <h1>Hi, I'm <span class="gradient-text">{{ content.profile()?.name || 'Developer' }}</span></h1>
@@ -27,20 +26,12 @@ import { ContentService } from '../services/content.service';
   `,
   styles: [`
     .hero {
-      min-height: 100vh;
+      min-height: 88vh;
       display: flex;
       align-items: center;
       justify-content: center;
       position: relative;
-      overflow: hidden;
-      background: linear-gradient(135deg, #050508, #120a2e);
-    }
-    .particles {
-      position: absolute;
-      inset: 0;
-      background-image: radial-gradient(circle at 20% 30%, rgba(124, 58, 237, 0.1) 0%, transparent 20%),
-                        radial-gradient(circle at 80% 70%, rgba(59, 130, 246, 0.1) 0%, transparent 20%);
-      pointer-events: none;
+      background: transparent;
     }
     .content {
       position: relative;
@@ -60,7 +51,7 @@ import { ContentService } from '../services/content.service';
       letter-spacing: -0.02em;
     }
     .gradient-text {
-      background: linear-gradient(90deg, #7c3aed, #3b82f6);
+      background: linear-gradient(90deg, #a855f7, #3b82f6);
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
     }
@@ -77,7 +68,7 @@ import { ContentService } from '../services/content.service';
       flex-wrap: wrap;
     }
     .cta-button {
-      background: linear-gradient(90deg, #7c3aed, #3b82f6);
+      background: linear-gradient(90deg, #a855f7, #3b82f6);
       color: white;
       border: none;
       padding: 1rem 2.5rem;
@@ -86,11 +77,11 @@ import { ContentService } from '../services/content.service';
       border-radius: 9999px;
       cursor: pointer;
       transition: all 0.3s ease;
-      box-shadow: 0 10px 20px rgba(124, 58, 237, 0.2);
+      box-shadow: 0 10px 20px rgba(124, 58, 237, 0.25);
     }
     .cta-button:hover {
       transform: translateY(-2px);
-      box-shadow: 0 15px 30px rgba(124, 58, 237, 0.4);
+      box-shadow: 0 15px 30px rgba(124, 58, 237, 0.45);
     }
     .linkedin-button {
       display: inline-flex;

@@ -14,8 +14,8 @@ export class StatsController {
 
   @Sse('stream')
   getStream(): Observable<MessageEvent> {
-    return this.statsService.getStream().pipe(
-      map((payload) => ({ data: payload } as MessageEvent)),
-    );
+    return this.statsService
+      .getStream()
+      .pipe(map((payload) => ({ data: payload })));
   }
 }

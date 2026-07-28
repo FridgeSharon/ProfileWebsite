@@ -29,11 +29,9 @@ import { ContentService } from '../../services/content.service';
 
         <section class="cv-section">
           <h2>Skills</h2>
-          <div class="skills-list">
+          <div class="skills-tags">
             @for (skill of content.skills(); track skill.id) {
-              <div class="skill-item">
-                <strong>{{ skill.name }}</strong> ({{ skill.category }})
-              </div>
+              <span class="skill-tag">{{ skill.name }}</span>
             }
           </div>
         </section>
@@ -44,10 +42,23 @@ import { ContentService } from '../../services/content.service';
             @for (exp of content.experience(); track exp.id) {
               <div class="exp-item">
                 <div class="exp-header">
-                  <h3>{{ exp.role }}</h3>
+                  <div class="exp-title-row">
+                    @if (exp.companyLogoUrl) {
+                      <img [src]="exp.companyLogoUrl" [alt]="exp.company" class="cv-company-logo">
+                    }
+                    <div>
+                      <h3>{{ exp.role }}</h3>
+                      <h4 class="company-sub">
+                        @if (exp.companyUrl) {
+                          <a [href]="exp.companyUrl" target="_blank" rel="noopener" class="company-link">{{ exp.company }} ↗</a>
+                        } @else {
+                          {{ exp.company }}
+                        }
+                      </h4>
+                    </div>
+                  </div>
                   <span class="dates">{{ exp.startDate }} - {{ exp.endDate || 'Present' }}</span>
                 </div>
-                <h4>{{ exp.company }}</h4>
                 <p>{{ exp.description }}</p>
               </div>
             }
@@ -116,60 +127,89 @@ import { ContentService } from '../../services/content.service';
       color: #1d4ed8;
     }
     .cv-section {
-      margin-bottom: 3rem;
+      margin-bottom: 2.75rem;
     }
     h2 {
-      font-size: 1.5rem;
+      font-size: 1.4rem;
       color: #0f172a;
       border-bottom: 1px solid #e2e8f0;
       padding-bottom: 0.5rem;
-      margin-bottom: 1.5rem;
+      margin-bottom: 1.25rem;
       text-transform: uppercase;
       letter-spacing: 0.05em;
     }
-    .skills-list {
-      display: grid;
-      grid-template-columns: repeat(2, 1fr);
-      gap: 1rem;
+    .skills-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
     }
-    .skill-item {
-      font-size: 0.95rem;
+    .skill-tag {
+      font-size: 0.88rem;
+      font-weight: 500;
+      background: #f1f5f9;
+      color: #334155;
+      border: 1px solid #cbd5e1;
+      padding: 0.3rem 0.75rem;
+      border-radius: 6px;
     }
     .exp-item {
-      margin-bottom: 2rem;
+      margin-bottom: 1.75rem;
     }
     .exp-header {
       display: flex;
       justify-content: space-between;
-      align-items: baseline;
-      margin-bottom: 0.25rem;
+      align-items: flex-start;
+      margin-bottom: 0.5rem;
+    }
+    .exp-title-row {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+    .cv-company-logo {
+      width: 36px;
+      height: 36px;
+      border-radius: 8px;
+      object-fit: cover;
+      border: 1px solid #e2e8f0;
     }
     h3 {
-      font-size: 1.2rem;
+      font-size: 1.15rem;
       margin: 0;
-      color: #1e293b;
+      color: #0f172a;
+      font-weight: 600;
+    }
+    .company-sub {
+      font-size: 0.95rem;
+      margin: 0.15rem 0 0;
+      color: #64748b;
+      font-weight: 500;
+    }
+    .company-link {
+      color: #2563eb;
+      text-decoration: none;
+    }
+    .company-link:hover {
+      text-decoration: underline;
     }
     .dates {
-      font-size: 0.9rem;
+      font-size: 0.85rem;
       color: #64748b;
-    }
-    h4 {
-      font-size: 1rem;
-      margin: 0 0 0.5rem;
-      color: #475569;
       font-weight: 500;
+      white-space: nowrap;
     }
     p {
       margin: 0;
       line-height: 1.6;
       color: #334155;
+      font-size: 0.93rem;
     }
     .project-item {
-      margin-bottom: 1.5rem;
+      margin-bottom: 1.25rem;
     }
     .tech {
-      margin-top: 0.5rem;
-      font-size: 0.9rem;
+      margin-top: 0.35rem;
+      font-size: 0.88rem;
       color: #64748b;
     }
     @media print {

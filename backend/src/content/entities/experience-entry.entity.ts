@@ -11,6 +11,12 @@ export class ExperienceEntry {
   @Column()
   company: string;
 
+  @Column({ nullable: true })
+  companyUrl: string;
+
+  @Column({ nullable: true })
+  companyLogoUrl: string;
+
   @Column()
   startDate: string;
 
