@@ -1,6 +1,7 @@
 import { Component, ChangeDetectionStrategy, input } from '@angular/core';
 import { NgTemplateOutlet } from '@angular/common';
 import { ExperienceEntry } from '../models/experience';
+import { environment } from '../../environments/environment';
 
 @Component({
   selector: 'app-experience-section',
@@ -16,7 +17,7 @@ import { ExperienceEntry } from '../models/experience';
               <div class="exp-header">
                 <div class="company-brand">
                   @if (exp.companyLogoUrl) {
-                    <img [src]="exp.companyLogoUrl" [alt]="exp.company" class="company-logo">
+                    <img [src]="getCompanyLogoUrl(exp.companyLogoUrl)" [alt]="exp.company" class="company-logo">
                   } @else {
                     <div class="company-logo-placeholder">{{ exp.company.substring(0, 2) }}</div>
                   }
@@ -175,4 +176,11 @@ import { ExperienceEntry } from '../models/experience';
 })
 export class ExperienceSectionComponent {
   experience = input.required<ExperienceEntry[]>();
+
+  getCompanyLogoUrl(logoUrl: string): string {
+    if (!logoUrl) return '';
+    if (logoUrl.startsWith('http://') || logoUrl.startsWith('https://')) return logoUrl;
+    if (logoUrl.startsWith('/')) return `${environment.apiBaseUrl}${logoUrl}`;
+    return `${environment.apiBaseUrl}/api/media/images/${logoUrl}`;
+  }
 }

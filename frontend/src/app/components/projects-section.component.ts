@@ -1,5 +1,6 @@
 import { Component, ChangeDetectionStrategy, input, computed } from '@angular/core';
 import { Project } from '../models/project';
+import { environment } from '../../environments/environment';
 
 @Component({
   selector: 'app-projects-section',
@@ -13,7 +14,7 @@ import { Project } from '../models/project';
             <div class="project-card">
               <div class="project-image">
                 @if (project.imageFilename) {
-                  <img [src]="'/api/media/images/' + project.imageFilename" [alt]="project.title" loading="lazy">
+                  <img [src]="getProjectImageUrl(project.imageFilename)" [alt]="project.title" loading="lazy">
                 } @else {
                   <div class="image-placeholder"></div>
                 }
@@ -175,4 +176,11 @@ export class ProjectsSectionComponent {
       techList: p.technologies.split(',').map(t => t.trim()).filter(t => t.length > 0),
     }))
   );
+
+  getProjectImageUrl(filename: string): string {
+    if (!filename) return '';
+    if (filename.startsWith('http://') || filename.startsWith('https://')) return filename;
+    if (filename.startsWith('/')) return `${environment.apiBaseUrl}${filename}`;
+    return `${environment.apiBaseUrl}/api/media/images/${filename}`;
+  }
 }
