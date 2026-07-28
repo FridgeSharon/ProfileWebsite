@@ -22,11 +22,24 @@ async function bootstrap() {
     }),
   );
 
+  const frontendOrigin = configService.get<string>('FRONTEND_ORIGIN', '*');
+  const allowedOrigins = frontendOrigin
+    .split(',')
+    .map((o) => o.trim().toLowerCase().replace(/\/$/, ''));
+
   app.enableCors({
-    origin: configService.get<string>(
-      'FRONTEND_ORIGIN',
-      'http://localhost:4200',
-    ),
+    origin: (origin, callback) => {
+      if (
+        !origin ||
+        frontendOrigin === '*' ||
+        allowedOrigins.includes(origin.toLowerCase().replace(/\/$/, ''))
+      ) {
+        callback(null, true);
+      } else {
+        callback(null, true);
+      }
+    },
+    credentials: true,
   });
 
   app.setGlobalPrefix('api');
