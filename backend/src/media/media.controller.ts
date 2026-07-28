@@ -27,39 +27,44 @@ export class MediaController {
     ];
 
     const basePath = possibleBasePaths.find((p) => fs.existsSync(p)) || possibleBasePaths[0];
-    let filePath = path.resolve(basePath, filename);
+    const filePath = path.resolve(basePath, filename);
 
     if (!filePath.startsWith(basePath + path.sep)) {
       throw new BadRequestException('Invalid path');
     }
 
-    if (!fs.existsSync(filePath)) {
-      if (
-        filename.endsWith('.jpg') &&
-        fs.existsSync(filePath.replace(/\.jpg$/, '.jpeg'))
-      ) {
-        filePath = filePath.replace(/\.jpg$/, '.jpeg');
-      } else if (
-        filename.endsWith('.jpeg') &&
-        fs.existsSync(filePath.replace(/\.jpeg$/, '.jpg'))
-      ) {
-        filePath = filePath.replace(/\.jpeg$/, '.jpg');
-      } else {
-        throw new NotFoundException('Image not found');
-      }
+    const resolvedPath = this.resolveExistingFilePath(filePath, filename);
+    if (!resolvedPath) {
+      throw new NotFoundException('Image not found');
     }
 
-    const stat = fs.statSync(filePath, { throwIfNoEntry: false });
+    const stat = fs.statSync(resolvedPath, { throwIfNoEntry: false });
     if (!stat || !stat.isFile()) {
       throw new NotFoundException('Image not found');
     }
 
-    const mimeType = mime.lookup(filePath) || 'application/octet-stream';
+    const mimeType = mime.lookup(resolvedPath) || 'application/octet-stream';
     res.set({
       'Content-Type': mimeType,
     });
 
-    const file = fs.createReadStream(filePath);
+    const file = fs.createReadStream(resolvedPath);
     return new StreamableFile(file);
+  }
+
+  private resolveExistingFilePath(filePath: string, filename: string): string | null {
+    if (fs.existsSync(filePath)) {
+      return filePath;
+    }
+
+    if (filename.endsWith('.jpg')) {
+      const altPath = filePath.replace(/\.jpg$/, '.jpeg');
+      if (fs.existsSync(altPath)) return altPath;
+    } else if (filename.endsWith('.jpeg')) {
+      const altPath = filePath.replace(/\.jpeg$/, '.jpg');
+      if (fs.existsSync(altPath)) return altPath;
+    }
+
+    return null;
   }
 }

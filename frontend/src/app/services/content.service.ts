@@ -1,10 +1,12 @@
-import { Injectable, signal, inject } from '@angular/core';
+import { Injectable, signal, inject, WritableSignal } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { environment } from '../../environments/environment';
 import { Project } from '../models/project';
 import { Skill } from '../models/skill';
 import { ExperienceEntry } from '../models/experience';
 import { Profile } from '../models/profile';
+
+type LoadingFlag = 'loadingProfile' | 'loadingProjects' | 'loadingSkills' | 'loadingExperience';
 
 @Injectable({ providedIn: 'root' })
 export class ContentService {
@@ -22,63 +24,39 @@ export class ContentService {
   private loadingSkills = false;
   private loadingExperience = false;
 
-  loadProfile(): void {
-    if (this.profile() || this.loadingProfile) return;
-    this.loadingProfile = true;
-    this.http.get<Profile | null>(`${this.baseUrl}/api/profile`).subscribe({
-      next: (data: Profile | null) => {
-        this.profile.set(data);
-        this.loadingProfile = false;
+  private fetchContent<T>(
+    endpoint: string,
+    targetSignal: WritableSignal<T>,
+    flagKey: LoadingFlag,
+    hasData: boolean,
+  ): void {
+    if (hasData || this[flagKey]) return;
+    this[flagKey] = true;
+    this.http.get<T>(`${this.baseUrl}/api/${endpoint}`).subscribe({
+      next: (data: T) => {
+        targetSignal.set(data);
+        this[flagKey] = false;
       },
       error: () => {
         this.loadError.set('Failed to load content. Please refresh.');
-        this.loadingProfile = false;
-      }
+        this[flagKey] = false;
+      },
     });
+  }
+
+  loadProfile(): void {
+    this.fetchContent('profile', this.profile, 'loadingProfile', !!this.profile());
   }
 
   loadProjects(): void {
-    if (this.projects().length || this.loadingProjects) return;
-    this.loadingProjects = true;
-    this.http.get<Project[]>(`${this.baseUrl}/api/projects`).subscribe({
-      next: (data: Project[]) => {
-        this.projects.set(data);
-        this.loadingProjects = false;
-      },
-      error: () => {
-        this.loadError.set('Failed to load content. Please refresh.');
-        this.loadingProjects = false;
-      }
-    });
+    this.fetchContent('projects', this.projects, 'loadingProjects', this.projects().length > 0);
   }
 
   loadSkills(): void {
-    if (this.skills().length || this.loadingSkills) return;
-    this.loadingSkills = true;
-    this.http.get<Skill[]>(`${this.baseUrl}/api/skills`).subscribe({
-      next: (data: Skill[]) => {
-        this.skills.set(data);
-        this.loadingSkills = false;
-      },
-      error: () => {
-        this.loadError.set('Failed to load content. Please refresh.');
-        this.loadingSkills = false;
-      }
-    });
+    this.fetchContent('skills', this.skills, 'loadingSkills', this.skills().length > 0);
   }
 
   loadExperience(): void {
-    if (this.experience().length || this.loadingExperience) return;
-    this.loadingExperience = true;
-    this.http.get<ExperienceEntry[]>(`${this.baseUrl}/api/experience`).subscribe({
-      next: (data: ExperienceEntry[]) => {
-        this.experience.set(data);
-        this.loadingExperience = false;
-      },
-      error: () => {
-        this.loadError.set('Failed to load content. Please refresh.');
-        this.loadingExperience = false;
-      }
-    });
+    this.fetchContent('experience', this.experience, 'loadingExperience', this.experience().length > 0);
   }
 }

@@ -2,6 +2,7 @@ import { Component, ChangeDetectionStrategy, inject, signal } from '@angular/cor
 import { ContentService } from '../services/content.service';
 import { ContactService } from '../services/contact.service';
 import { StatsService } from '../services/stats.service';
+import { isValidContact } from '../utils/validation.utils';
 
 @Component({
   selector: 'app-contact-section',
@@ -257,10 +258,7 @@ export class ContactSectionComponent {
   validationError = signal('');
 
   submitDemo(value: string) {
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    const phoneRegex = /^\+?[\d\s-]{7,20}$/;
-    
-    if (!emailRegex.test(value) && !phoneRegex.test(value)) {
+    if (!isValidContact(value)) {
       this.validationError.set('Please enter a valid email or phone number');
       return;
     }

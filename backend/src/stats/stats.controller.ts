@@ -37,13 +37,13 @@ export class StatsController {
   @Header('X-Accel-Buffering', 'no')
   @Header('Connection', 'keep-alive')
   getStream(): Observable<MessageEvent> {
-    const ping$ = interval(15000).pipe(
-      map(() => ({ data: { ping: true } } as MessageEvent)),
+    const ping$: Observable<MessageEvent> = interval(15000).pipe(
+      map(() => ({ data: { ping: true } })),
     );
 
-    const data$ = this.statsService
+    const data$: Observable<MessageEvent> = this.statsService
       .getStream()
-      .pipe(map((payload) => ({ data: payload } as MessageEvent)));
+      .pipe(map((payload) => ({ data: payload })));
 
     return merge(data$, ping$);
   }

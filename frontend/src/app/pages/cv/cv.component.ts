@@ -1,7 +1,7 @@
 import { Component, ChangeDetectionStrategy, inject, OnInit } from '@angular/core';
 import { ContentService } from '../../services/content.service';
 import { StatsService } from '../../services/stats.service';
-import { environment } from '../../../environments/environment';
+import { resolveMediaUrl, getInitials } from '../../utils/media.utils';
 
 @Component({
   selector: 'app-cv',
@@ -47,7 +47,7 @@ import { environment } from '../../../environments/environment';
                   <div class="exp-title-row">
                     @if (exp.companyLogoUrl && !failedLogos.has(exp.id)) {
                       <img
-                        [src]="getCompanyLogoUrl(exp.companyLogoUrl)"
+                        [src]="resolveMediaUrl(exp.companyLogoUrl)"
                         [alt]="exp.company"
                         class="cv-company-logo"
                         (error)="failedLogos.add(exp.id)"
@@ -256,17 +256,6 @@ export class CvComponent implements OnInit {
     this.content.loadExperience();
   }
 
-  getCompanyLogoUrl(logoUrl: string | undefined): string {
-    if (!logoUrl) return '';
-    if (logoUrl.startsWith('http://') || logoUrl.startsWith('https://')) return logoUrl;
-    if (logoUrl.startsWith('/')) return `${environment.apiBaseUrl}${logoUrl}`;
-    return `${environment.apiBaseUrl}/api/media/images/${logoUrl}`;
-  }
-
-  getInitials(name: string): string {
-    if (!name) return '??';
-    const parts = name.trim().split(/\s+/);
-    if (parts.length >= 2) return (parts[0][0] + parts[1][0]).toUpperCase();
-    return name.substring(0, 2).toUpperCase();
-  }
+  resolveMediaUrl = resolveMediaUrl;
+  getInitials = getInitials;
 }

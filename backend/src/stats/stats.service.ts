@@ -62,35 +62,17 @@ export class StatsService implements OnModuleInit, OnModuleDestroy {
       });
       const uniqueVisitorsAllTime = new Set(allEvents.map((e) => e.visitorId)).size;
 
-      // 2. LinkedIn Clicks
-      const linkedinToday = await this.eventRepository.count({
-        where: {
-          eventType: 'linkedin',
-          createdAt: MoreThanOrEqual(startOfToday),
-        },
-      });
-      const linkedinAllTime = await this.eventRepository.count({
-        where: { eventType: 'linkedin' },
-      });
-
-      // 3. Source Code Views
-      const sourceCodeToday = await this.eventRepository.count({
-        where: {
-          eventType: 'source_code',
-          createdAt: MoreThanOrEqual(startOfToday),
-        },
-      });
-      const sourceCodeAllTime = await this.eventRepository.count({
-        where: { eventType: 'source_code' },
-      });
-
-      // 4. GitHub Forks
-      const forks = await this.getGitHubForks();
+      // 2. LinkedIn Clicks & 3. Source Code Views
+      const [linkedinClicks, sourceCodeViews, forks] = await Promise.all([
+        this.getEventMetrics('linkedin', startOfToday),
+        this.getEventMetrics('source_code', startOfToday),
+        this.getGitHubForks(),
+      ]);
 
       return {
         uniqueVisitors: { today: uniqueVisitorsToday, allTime: uniqueVisitorsAllTime },
-        linkedinClicks: { today: linkedinToday, allTime: linkedinAllTime },
-        sourceCodeViews: { today: sourceCodeToday, allTime: sourceCodeAllTime },
+        linkedinClicks,
+        sourceCodeViews,
         githubForks: { total: forks },
       };
     } catch (err) {
@@ -102,6 +84,16 @@ export class StatsService implements OnModuleInit, OnModuleDestroy {
         githubForks: { total: 0 },
       };
     }
+  }
+
+  private async getEventMetrics(eventType: string, startOfToday: Date): Promise<StatMetric> {
+    const [today, allTime] = await Promise.all([
+      this.eventRepository.count({
+        where: { eventType, createdAt: MoreThanOrEqual(startOfToday) },
+      }),
+      this.eventRepository.count({ where: { eventType } }),
+    ]);
+    return { today, allTime };
   }
 
   async trackEvent(eventType: string, visitorId: string): Promise<void> {

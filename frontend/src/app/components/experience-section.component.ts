@@ -1,7 +1,7 @@
 import { Component, ChangeDetectionStrategy, input } from '@angular/core';
 import { NgTemplateOutlet } from '@angular/common';
 import { ExperienceEntry } from '../models/experience';
-import { environment } from '../../environments/environment';
+import { resolveMediaUrl, getInitials } from '../utils/media.utils';
 
 @Component({
   selector: 'app-experience-section',
@@ -17,7 +17,7 @@ import { environment } from '../../environments/environment';
               <div class="exp-header">
                 <div class="company-brand">
                   @if (exp.companyLogoUrl && !failedLogos.has(exp.id)) {
-                    <img [src]="getCompanyLogoUrl(exp.companyLogoUrl)" [alt]="exp.company" class="company-logo" (error)="failedLogos.add(exp.id)">
+                    <img [src]="resolveMediaUrl(exp.companyLogoUrl)" [alt]="exp.company" class="company-logo" (error)="failedLogos.add(exp.id)">
                   } @else {
                     <div class="company-logo-placeholder">{{ getInitials(exp.company) }}</div>
                   }
@@ -178,17 +178,6 @@ export class ExperienceSectionComponent {
   experience = input.required<ExperienceEntry[]>();
   failedLogos = new Set<number>();
 
-  getCompanyLogoUrl(logoUrl: string): string {
-    if (!logoUrl) return '';
-    if (logoUrl.startsWith('http://') || logoUrl.startsWith('https://')) return logoUrl;
-    if (logoUrl.startsWith('/')) return `${environment.apiBaseUrl}${logoUrl}`;
-    return `${environment.apiBaseUrl}/api/media/images/${logoUrl}`;
-  }
-
-  getInitials(name: string): string {
-    if (!name) return '??';
-    const parts = name.trim().split(/\s+/);
-    if (parts.length >= 2) return (parts[0][0] + parts[1][0]).toUpperCase();
-    return name.substring(0, 2).toUpperCase();
-  }
+  resolveMediaUrl = resolveMediaUrl;
+  getInitials = getInitials;
 }

@@ -46,7 +46,7 @@ async function bootstrap() {
       ) {
         callback(null, origin);
       } else {
-        callback(null, origin);
+        callback(null, false);
       }
     },
     credentials: true,
