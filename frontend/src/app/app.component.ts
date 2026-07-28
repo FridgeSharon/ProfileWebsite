@@ -1,5 +1,6 @@
-import { Component, ChangeDetectionStrategy, inject, OnInit } from '@angular/core';
+import { Component, ChangeDetectionStrategy, inject, OnInit, effect } from '@angular/core';
 import { RouterOutlet, RouterLink, Router, NavigationEnd } from '@angular/router';
+import { Title, Meta } from '@angular/platform-browser';
 import { filter } from 'rxjs';
 import { ContentService } from './services/content.service';
 
@@ -232,9 +233,21 @@ import { ContentService } from './services/content.service';
 export class AppComponent implements OnInit {
   content = inject(ContentService);
   router = inject(Router);
+  titleService = inject(Title);
+  metaService = inject(Meta);
   currentYear = new Date().getFullYear();
 
   constructor() {
+    effect(() => {
+      const profile = this.content.profile();
+      if (profile?.name) {
+        const pageTitle = `${profile.name} - ${profile.title || 'Fullstack'}`;
+        this.titleService.setTitle(pageTitle);
+        this.metaService.updateTag({ name: 'description', content: `${profile.name} — ${profile.title || 'Fullstack'}. ${profile.tagline || ''}` });
+        this.metaService.updateTag({ property: 'og:title', content: pageTitle });
+      }
+    });
+
     if (typeof window !== 'undefined' && 'scrollRestoration' in window.history) {
       window.history.scrollRestoration = 'manual';
     }
