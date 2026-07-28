@@ -1,6 +1,7 @@
 import { Component, ChangeDetectionStrategy, inject, signal } from '@angular/core';
 import { ContentService } from '../services/content.service';
 import { ContactService } from '../services/contact.service';
+import { StatsService } from '../services/stats.service';
 
 @Component({
   selector: 'app-contact-section',
@@ -20,6 +21,7 @@ import { ContactService } from '../services/contact.service';
           </p>
           <a
             [href]="content.profile()?.linkedinUrl || 'https://linkedin.com'"
+            (click)="stats.trackLinkedInClick()"
             target="_blank"
             rel="noopener noreferrer"
             class="linkedin-btn"
@@ -247,6 +249,7 @@ import { ContactService } from '../services/contact.service';
 export class ContactSectionComponent {
   content = inject(ContentService);
   contactService = inject(ContactService);
+  stats = inject(StatsService);
 
   showForm = signal(false);
   sending = signal(false);

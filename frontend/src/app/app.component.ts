@@ -3,6 +3,7 @@ import { RouterOutlet, RouterLink, Router, NavigationEnd } from '@angular/router
 import { Title, Meta } from '@angular/platform-browser';
 import { filter } from 'rxjs';
 import { ContentService } from './services/content.service';
+import { StatsService } from './services/stats.service';
 
 @Component({
   selector: 'app-root',
@@ -21,7 +22,7 @@ import { ContentService } from './services/content.service';
     @let profile = content.profile();
     <nav class="navbar">
       <div class="nav-content">
-        <a routerLink="/" class="brand">{{ profile?.name || 'Portfolio' }}</a>
+        <a routerLink="/" (click)="scrollToTop($event)" class="brand">{{ profile?.name || 'Portfolio' }}</a>
         <div class="nav-links">
           <button (click)="scrollTo('skills')" class="nav-btn">Skills</button>
           <button (click)="scrollTo('projects')" class="nav-btn">Projects</button>
@@ -44,7 +45,7 @@ import { ContentService } from './services/content.service';
           <a routerLink="/cv">CV</a>
           @if (profile?.linkedinUrl) {
             <span>•</span>
-            <a [href]="profile?.linkedinUrl" target="_blank" rel="noopener">LinkedIn</a>
+            <a [href]="profile?.linkedinUrl" (click)="stats.trackLinkedInClick()" target="_blank" rel="noopener">LinkedIn</a>
           }
         </div>
       </div>
@@ -232,6 +233,7 @@ import { ContentService } from './services/content.service';
 })
 export class AppComponent implements OnInit {
   content = inject(ContentService);
+  stats = inject(StatsService);
   router = inject(Router);
   titleService = inject(Title);
   metaService = inject(Meta);
@@ -268,6 +270,12 @@ export class AppComponent implements OnInit {
 
   ngOnInit() {
     this.content.loadProfile();
+  }
+
+  scrollToTop(event: Event) {
+    event.preventDefault();
+    this.router.navigate(['/']);
+    window.scrollTo({ top: 0, left: 0, behavior: 'smooth' });
   }
 
   scrollTo(sectionId: string) {

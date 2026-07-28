@@ -1,4 +1,11 @@
-export interface Stats {
+export interface StatMetric {
   today: number;
-  total: number;
+  allTime: number;
+}
+
+export interface Stats {
+  uniqueVisitors: StatMetric;
+  linkedinClicks: StatMetric;
+  sourceCodeViews: StatMetric;
+  githubForks: { total: number };
 }

@@ -1,5 +1,6 @@
 import { Component, ChangeDetectionStrategy, inject, OnInit } from '@angular/core';
 import { ContentService } from '../../services/content.service';
+import { StatsService } from '../../services/stats.service';
 
 @Component({
   selector: 'app-cv',
@@ -18,7 +19,7 @@ import { ContentService } from '../../services/content.service';
             }
             @if (content.profile()?.linkedinUrl) {
               @if (content.profile()?.location) { <span> | </span> }
-              <a [href]="content.profile()?.linkedinUrl" target="_blank" rel="noopener" class="cv-link">LinkedIn Profile</a>
+              <a [href]="content.profile()?.linkedinUrl" (click)="stats.trackLinkedInClick()" target="_blank" rel="noopener" class="cv-link">LinkedIn Profile</a>
             }
             @if (content.profile()?.githubUrl) {
               <span> | </span>
@@ -221,6 +222,7 @@ import { ContentService } from '../../services/content.service';
 })
 export class CvComponent implements OnInit {
   content = inject(ContentService);
+  stats = inject(StatsService);
 
   ngOnInit() {
     this.content.loadProfile();

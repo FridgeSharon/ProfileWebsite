@@ -1,6 +1,7 @@
-import { Component, ChangeDetectionStrategy, signal, inject } from '@angular/core';
+import { Component, ChangeDetectionStrategy, signal, inject, OnInit } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { ContentService } from '../../services/content.service';
+import { StatsService } from '../../services/stats.service';
 
 interface CodeSnippet {
   id: string;
@@ -128,7 +129,7 @@ interface CodeSnippet {
             </svg>
             GitHub Repository
           </a>
-          <a [href]="content.profile()?.linkedinUrl || 'https://linkedin.com'" target="_blank" rel="noopener" class="linkedin-btn">Connect on LinkedIn</a>
+          <a [href]="content.profile()?.linkedinUrl || 'https://linkedin.com'" (click)="stats.trackLinkedInClick()" target="_blank" rel="noopener" class="linkedin-btn">Connect on LinkedIn</a>
         </footer>
       </div>
     </div>
@@ -406,10 +407,15 @@ interface CodeSnippet {
   `],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class ArchitectureComponent {
+export class ArchitectureComponent implements OnInit {
   content = inject(ContentService);
+  stats = inject(StatsService);
   activeTab = signal<string>('backend');
   copiedId = signal<string | null>(null);
+
+  ngOnInit() {
+    this.stats.trackSourceCodeView();
+  }
 
   snippets: CodeSnippet[] = [
     {
