@@ -2,12 +2,12 @@
   "name": "frontend",
   "version": "0.0.0",
   "engines": {
-    "node": ">=22.22.3"
+    "node": ">=24.15.0"
   },
   "scripts": {
     "ng": "ng",
     "start": "ng serve",
-    "build": "node -e \"if(process.env.BACKEND_URL) require('fs').writeFileSync('src/environments/environment.prod.ts', 'export const environment = { production: true, apiBaseUrl: \\\"' + process.env.BACKEND_URL + '\\\" };\\n')\" && ng build",
+    "build": "node -e \"if(process.env.BACKEND_URL) require('fs').writeFileSync('src/environments/environment.prod.ts', 'export const environment = { production: true, apiBaseUrl: \\\"' + process.env.BACKEND_URL + '\\\" };\\n')\" && ng build && node -e \"require('fs').copyFileSync('src/_redirects', 'dist/frontend/browser/_redirects')\"",
     "watch": "ng build --watch --configuration development"
   },
   "private": true,
