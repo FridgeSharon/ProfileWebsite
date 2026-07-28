@@ -12,3 +12,7 @@ backend/data/*
 .DS_Store
 *.log
 npm-debug.log*
+*.js.map
+backend/test/*.js
+backend/test/*.d.ts
+frontend/src/_redirects

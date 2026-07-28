@@ -7,7 +7,7 @@
   "scripts": {
     "ng": "ng",
     "start": "ng serve",
-    "build": "ng build",
+    "build": "node -e \"if(process.env.BACKEND_URL) require('fs').writeFileSync('src/_redirects', '/api/* ' + process.env.BACKEND_URL + '/api/:splat 200\\n')\" && ng build",
     "watch": "ng build --watch --configuration development"
   },
   "private": true,
