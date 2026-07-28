@@ -38,8 +38,17 @@ async function seed() {
   const experienceRepo = dataSource.getRepository(ExperienceEntry);
 
   let seedData: SeedData | null = null;
+
+  if (process.env.CV_SEED_JSON) {
+    try {
+      seedData = JSON.parse(process.env.CV_SEED_JSON) as SeedData;
+    } catch (e) {
+      console.error('Failed to parse process.env.CV_SEED_JSON:', e);
+    }
+  }
+
   const customSeedPath = path.join(dbDir, 'cv-seed.json');
-  if (fs.existsSync(customSeedPath)) {
+  if (!seedData && fs.existsSync(customSeedPath)) {
     try {
       seedData = JSON.parse(
         fs.readFileSync(customSeedPath, 'utf8'),
@@ -48,6 +57,13 @@ async function seed() {
       console.error(`Failed to parse ${customSeedPath}:`, e);
       process.exit(1);
     }
+  }
+
+  if (process.env.FORCE_RESEED === 'true' && seedData) {
+    await profileRepo.clear();
+    await projectRepo.clear();
+    await skillRepo.clear();
+    await experienceRepo.clear();
   }
 
   const profileCount = await profileRepo.count();
