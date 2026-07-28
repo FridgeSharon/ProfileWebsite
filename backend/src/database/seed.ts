@@ -7,6 +7,7 @@ import { Skill } from '../content/entities/skill.entity';
 import { ExperienceEntry } from '../content/entities/experience-entry.entity';
 import { Profile } from '../content/entities/profile.entity';
 import { ContactRequest } from '../contact/entities/contact-request.entity';
+import { StatEvent } from '../stats/entities/stat-event.entity';
 
 interface SeedData {
   profile?: Partial<Profile>;
@@ -26,7 +27,7 @@ async function seed() {
   const dataSource = new DataSource({
     type: 'better-sqlite3',
     database: dbPath,
-    entities: [Project, Skill, ExperienceEntry, Profile, ContactRequest],
+    entities: [Project, Skill, ExperienceEntry, Profile, ContactRequest, StatEvent],
     synchronize: true,
   });
 
