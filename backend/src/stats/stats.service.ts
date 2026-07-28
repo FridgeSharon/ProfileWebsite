@@ -28,18 +28,22 @@ export class StatsService implements OnModuleInit, OnModuleDestroy {
   }
 
   async getSummary(): Promise<StatsPayload> {
-    const total = await this.contactRepository.count();
+    try {
+      const total = await this.contactRepository.count();
 
-    const startOfToday = new Date();
-    startOfToday.setHours(0, 0, 0, 0);
+      const startOfToday = new Date();
+      startOfToday.setHours(0, 0, 0, 0);
 
-    const today = await this.contactRepository.count({
-      where: {
-        submittedAt: MoreThanOrEqual(startOfToday),
-      },
-    });
+      const today = await this.contactRepository.count({
+        where: {
+          submittedAt: MoreThanOrEqual(startOfToday),
+        },
+      });
 
-    return { total, today };
+      return { total, today };
+    } catch {
+      return { total: 0, today: 0 };
+    }
   }
 
   async recordRequest(): Promise<void> {
