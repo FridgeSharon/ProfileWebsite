@@ -1,189 +1,132 @@
 # Profile Website
 
-A personal profile / hire-me website built with Angular 22 and NestJS 11.
-
-## Architecture
-
-```
-├── frontend/          Angular 22 (standalone components, signals, SCSS)
-├── backend/           NestJS 11 (TypeORM, SQLite, Nodemailer, SSE)
-└── package.json       npm workspaces root
-```
-
-### Root `package.json` & Monorepo Workspaces
-
-The root `package.json` configures the project as an **npm Workspace** containing two sub-packages (`frontend` and `backend`). Its primary purposes are:
-
-1. **Monorepo Workspaces Management (`"workspaces": ["frontend", "backend"]`)**:
-   - Allows running a single `npm install` from the project root to install and link dependencies for both the Angular frontend and NestJS backend at once.
-2. **Unified Single-Command Development**:
-   - Provides top-level scripts so you don't need to manually `cd` into subfolders:
-     - `npm run dev`: Runs both the backend dev server (port 3000) and frontend dev server (port 4200) simultaneously in a single terminal.
-     - `npm run build`: Compiles production bundles for both backend and frontend.
-     - `npm run seed`: Populates the SQLite database.
-     - `npm run lint`: Runs linters across all packages.
-3. **Global Tooling & Dependency Overrides**:
-   - Holds shared developer tools like `concurrently`.
-   - Defines central `"overrides"` so transitive dependency security patches apply consistently across the entire repository.
+A personal profile / hire-me website built with **Angular 22** (standalone components, signals, SCSS) and **NestJS 11** (TypeORM, SQLite, Nodemailer, SSE).
 
 ---
 
-### Backend API Endpoints
+## 🏗️ Architecture Overview
 
-| Method | Endpoint                    | Description                          |
-|--------|-----------------------------|--------------------------------------|
-| GET    | `/api/profile`              | Fetch personal profile metadata      |
-| GET    | `/api/projects`             | List all projects                    |
-| GET    | `/api/skills`               | List all skills                      |
-| GET    | `/api/experience`           | List all experience entries          |
-| POST   | `/api/contact/request`      | Submit a contact request (throttled) |
-| GET    | `/api/stats/summary`        | Contact request counts (today/total) |
-| GET    | `/api/stats/stream`         | Live stats via SSE                   |
-| GET    | `/api/media/images/:file`   | Serve static images                  |
+```text
+├── frontend/          Angular 22 (standalone components, signals, OnPush, SCSS)
+├── backend/           NestJS 11 (TypeORM, SQLite, Nodemailer, SSE, Throttler)
+├── package.json       npm workspaces root
+└── README.md          Project documentation
+```
 
-**Frontend** is a two-page Angular SPA:
-- **Home** — Hero, Skills, Projects, Experience, and Contact sections with a premium dark-mode design
-- **CV** — Resume-style layout rendering the same content data
+### Monorepo Workspaces Management
+
+The root `package.json` configures the project as an **npm Workspace** containing two sub-packages (`frontend` and `backend`).
+
+- **Unified Dependencies**: Run a single `npm install` from the project root to install and link dependencies for both packages.
+- **Top-Level Commands**:
+  - `npm run dev`: Runs both the NestJS backend (port 3000) and Angular frontend (port 4200) simultaneously.
+  - `npm run build`: Compiles production bundles for both backend and frontend.
+  - `npm run seed`: Populates the SQLite database with seed data.
+  - `npm run lint`: Runs ESLint across the repository.
 
 ---
 
-## Setup
+## 📡 Backend API Endpoints
+
+| Method | Endpoint                  | Description                          |
+|--------|---------------------------|--------------------------------------|
+| `GET`  | `/api/profile`            | Fetch personal profile metadata      |
+| `GET`  | `/api/projects`           | List all projects                    |
+| `GET`  | `/api/skills`             | List all skills                      |
+| `GET`  | `/api/experience`         | List all experience entries          |
+| `POST` | `/api/contact/request`    | Submit a contact request (throttled) |
+| `GET`  | `/api/stats/summary`      | Contact request counts (today/total) |
+| `GET`  | `/api/stats/stream`       | Live visitor/request stats via SSE   |
+| `GET`  | `/api/media/images/:file` | Serve static image assets            |
+
+---
+
+## 🚀 100% Free Production Deployment Guide
+
+This project is optimized for 100% free hosting using **Cloudflare Pages** for the Angular frontend and **Render** for the NestJS backend.
+
+---
+
+### 1. Backend Deployment (Render.com)
+
+1. **Create Web Service** on Render connected to your GitHub repository.
+2. **Settings**:
+   - **Root Directory**: `backend`
+   - **Environment**: `Node`
+   - **Build Command**: `npm install && npm run build`
+   - **Start Command**: `npm run start:prod` (automatically runs database seeding on boot before launching NestJS)
+3. **Environment Variables**:
+   Add the following in Render **Environment**:
+   
+   | Key | Value / Example |
+   |---|---|
+   | `NODE_ENV` | `production` |
+   | `DB_PATH` | `./data/app.sqlite` |
+   | `FRONTEND_ORIGIN` | `https://your-app.pages.dev` |
+   | `CV_SEED_JSON` | *(Paste the contents of your `cv-seed.json` here to seed your real data privately)* |
+   | `FORCE_RESEED` | `true` *(set once to populate database, then remove)* |
+
+---
+
+### 2. Frontend Deployment (Cloudflare Pages)
+
+1. **Create Pages Project** in Cloudflare Dashboard → **Workers & Pages** → **Connect to Git**.
+2. **Build Settings**:
+   - **Framework Preset**: `Angular`
+   - **Root Directory**: `frontend`
+   - **Build Command**: `npm run build`
+   - **Build Output Directory**: `dist/frontend/browser`
+3. **Environment Variables**:
+   Add the following in Cloudflare Pages **Settings → Environment variables**:
+   
+   | Key | Value | Description |
+   |---|---|---|
+   | `NODE_VERSION` | `24.15.0` | Node.js version required by Angular 22 |
+   | `BACKEND_URL` | `https://your-backend.onrender.com` | Automatically injected into `environment.prod.ts` during build |
+
+> **🔒 Privacy & Security Note**: By configuring `BACKEND_URL` in Cloudflare Pages environment variables and `CV_SEED_JSON` in Render environment variables, **zero private URLs or personal data are ever committed to public GitHub repositories**.
+
+---
+
+## 🛠️ Local Setup & Development
 
 ### Prerequisites
-
-- Node.js >= 22 (Supports Node 22 LTS & Node 24 LTS)
+- Node.js >= 22 (Node 22 LTS or Node 24 LTS)
 - npm >= 10
 
-### Install
+### Installation
 
 ```bash
 npm install
 ```
 
-### Environment
+### Customizing Profile Data
 
-Copy the example env file and fill in your values:
-
-```bash
-cp backend/.env.example backend/.env
-```
-
-| Variable           | Description                              | Default                    |
-|--------------------|------------------------------------------|----------------------------|
-| `SMTP_HOST`        | SMTP server hostname                     | —                          |
-| `SMTP_PORT`        | SMTP server port                         | —                          |
-| `SMTP_USER`        | SMTP username                            | —                          |
-| `SMTP_PASS`        | SMTP password                            | —                          |
-| `SMTP_FROM`        | Sender email address                     | —                          |
-| `OWNER_EMAIL`      | Where contact notifications are sent     | —                          |
-| `FRONTEND_ORIGIN`  | CORS allowed origin                      | `http://localhost:4200`    |
-| `THROTTLE_TTL`     | Rate limit window (ms)                   | `60000`                    |
-| `THROTTLE_LIMIT`   | Max requests per window per IP           | `5`                        |
-| `DB_PATH`          | SQLite database file path                | `./data/app.sqlite`        |
-
-SMTP is optional for local development — contact submissions still persist to the database, and a warning is logged if the email fails to send.
-
-### Customizing Personal Profile Data
-
-This repository is designed as an open-source template. To populate the portfolio with your own personal profile, resume, projects, and social links:
+To populate the portfolio with your own personal profile, resume, projects, and skills locally:
 
 ```bash
 cp backend/data/cv-seed.json.example backend/data/cv-seed.json
 ```
 
-Edit `backend/data/cv-seed.json` with your details. Because `backend/data/cv-seed.json` is listed in `.gitignore`, your personal information will stay private and won't be committed to Git.
+Edit `backend/data/cv-seed.json`. Because `cv-seed.json` is listed in `.gitignore`, your personal details remain completely private on your local machine.
 
-### Seed the Database
-
-Populates the database with content (idempotent — only inserts if tables are empty):
+### Seed Database Locally
 
 ```bash
 npm run seed
 ```
 
-### Run in Development
-
-Starts both backend (port 3000, watch mode) and frontend (port 4200, proxied to backend) concurrently:
+### Start Development Server
 
 ```bash
 npm run dev
 ```
 
-### Build for Production
+- Angular Frontend: `http://localhost:4200`
+- NestJS Backend API: `http://localhost:3000`
 
-```bash
-npm run build
-```
+---
 
-## Production Deployment
-
-### Overview
-
-The production build produces:
-- `backend/dist/` — compiled NestJS application
-- `frontend/dist/frontend/browser/` — static Angular SPA files
-
-### Environment
-
-Set the following for production:
-
-```bash
-NODE_ENV=production         # Disables TypeORM auto-sync (uses migrations instead)
-FRONTEND_ORIGIN=https://yourdomain.com
-OWNER_EMAIL=you@example.com
-# SMTP_* vars must be set for contact notifications to work
-```
-
-### Serving the Application
-
-**Option A — Reverse proxy (recommended):** Run the NestJS backend on port 3000 and serve the Angular static files via Nginx:
-
-```nginx
-server {
-    listen 80;
-    server_name yourdomain.com;
-
-    location /api/ {
-        proxy_pass http://localhost:3000;
-        proxy_http_version 1.1;
-        proxy_set_header Connection '';
-        proxy_buffering off;          # Required for SSE
-    }
-
-    location / {
-        root /path/to/frontend/dist/frontend/browser;
-        try_files $uri $uri/ /index.html;
-    }
-}
-```
-
-**Option B — NestJS serves the SPA:** Configure NestJS to serve the Angular dist as static files using `@nestjs/serve-static`.
-
-### Notes
-
-- `proxy.conf.json` is **dev-only** — it proxies `/api` from the Angular dev server (port 4200) to the NestJS server (port 3000). In production, both are served from the same origin via the reverse proxy.
-- The `environment.prod.ts` file should set `apiBaseUrl` to `''` (empty string) when using a reverse proxy on the same domain.
-
-## Adding Real Content
-
-### Images
-
-Place image files in `backend/media/images/`. They are served at `/api/media/images/<filename>`. Update the `imageFilename` field on project records to reference them.
-
-### Seed Data & Privacy
-
-To keep personal data safe when pushing to Git:
-1. Place your private details in `backend/data/cv-seed.json` (which is ignored by `.gitignore`).
-2. Run `npm run seed`.
-3. The source code in Git contains zero hardcoded personal contact details.
-
-## Privacy
-
-The contact form collects an email or phone number. A static privacy statement is displayed alongside the form informing users that:
-- Personal data is used only to contact them directly
-- Data is never sold or shared with third parties
-- Data is stored in the site's own SQLite database
-
-## License
+## 📄 License
 
 MIT
