@@ -19,7 +19,7 @@ import { ContactService } from '../services/contact.service';
             I'm always open to discussing new engineering opportunities, integration architecture, or technical projects.
           </p>
           <a
-            [href]="content.profile()?.linkedinUrl || 'https://www.linkedin.com/in/guy-sharon/'"
+            [href]="content.profile()?.linkedinUrl || 'https://linkedin.com'"
             target="_blank"
             rel="noopener noreferrer"
             class="linkedin-btn"
@@ -43,7 +43,7 @@ import { ContactService } from '../services/contact.service';
               @if (submitted()) {
                 <p class="success-message">Thanks, I'll reach out soon!</p>
               } @else {
-                <input type="text" #contactInput aria-label="Email or Phone number" placeholder="Email or Phone number" class="contact-input" (input)="validationError.set('')">
+                <input type="text" #contactInput aria-label="Email or Phone number" autocomplete="email tel" placeholder="Email or Phone number" class="contact-input" (input)="validationError.set('')">
                 @if (validationError()) {
                   <p class="error-message">{{ validationError() }}</p>
                 }

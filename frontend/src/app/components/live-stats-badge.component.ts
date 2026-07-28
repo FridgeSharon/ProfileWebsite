@@ -1,11 +1,11 @@
-import { Component, ChangeDetectionStrategy, inject, effect } from '@angular/core';
+import { Component, ChangeDetectionStrategy, inject, effect, signal } from '@angular/core';
 import { StatsService } from '../services/stats.service';
 
 @Component({
   selector: 'app-live-stats-badge',
   standalone: true,
   template: `
-    <div class="stats-badge" [class.pulse]="pulseEffect">
+    <div class="stats-badge" [class.pulse]="pulseEffect()">
       <span class="icon" aria-hidden="true">✨</span>
       <span class="text">{{ stats.today() }} people reached out today</span>
     </div>
@@ -37,17 +37,17 @@ import { StatsService } from '../services/stats.service';
 })
 export class LiveStatsBadgeComponent {
   stats = inject(StatsService);
-  pulseEffect = false;
+  pulseEffect = signal(false);
 
   constructor() {
     let previousTotal = this.stats.total();
     effect(() => {
       const currentTotal = this.stats.total();
       if (currentTotal > previousTotal) {
-        this.pulseEffect = true;
-        setTimeout(() => this.pulseEffect = false, 1000);
+        this.pulseEffect.set(true);
+        setTimeout(() => this.pulseEffect.set(false), 1000);
       }
       previousTotal = currentTotal;
-    });
+    }, { allowSignalWrites: true });
   }
 }

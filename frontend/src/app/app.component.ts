@@ -1,5 +1,6 @@
 import { Component, ChangeDetectionStrategy, inject, OnInit } from '@angular/core';
-import { RouterOutlet, RouterLink, Router } from '@angular/router';
+import { RouterOutlet, RouterLink, Router, NavigationEnd } from '@angular/router';
+import { filter } from 'rxjs';
 import { ContentService } from './services/content.service';
 
 @Component({
@@ -233,11 +234,42 @@ export class AppComponent implements OnInit {
   router = inject(Router);
   currentYear = new Date().getFullYear();
 
+  constructor() {
+    if (typeof window !== 'undefined' && 'scrollRestoration' in window.history) {
+      window.history.scrollRestoration = 'manual';
+    }
+
+    this.router.events.pipe(
+      filter((e): e is NavigationEnd => e instanceof NavigationEnd)
+    ).subscribe((event) => {
+      const urlTree = this.router.parseUrl(event.urlAfterRedirects || event.url);
+      const fragment = urlTree.fragment;
+
+      if (fragment) {
+        this.scrollToSection(fragment);
+      } else if (urlTree.root.children['primary']?.segments[0]?.path === '' || event.url === '/' || event.url.startsWith('/#')) {
+        window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
+      }
+    });
+  }
+
   ngOnInit() {
     this.content.loadProfile();
   }
 
   scrollTo(sectionId: string) {
     this.router.navigate(['/'], { fragment: sectionId });
+    this.scrollToSection(sectionId);
+  }
+
+  private scrollToSection(sectionId: string) {
+    const doScroll = () => {
+      const el = document.getElementById(sectionId);
+      if (el) {
+        el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+    };
+    setTimeout(doScroll, 50);
+    setTimeout(doScroll, 250);
   }
 }

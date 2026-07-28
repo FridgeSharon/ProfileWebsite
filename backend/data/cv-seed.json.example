@@ -1,0 +1,74 @@
+{
+  "profile": {
+    "name": "Jane Doe",
+    "title": "Fullstack Developer & Systems Engineer",
+    "tagline": "Building modern, high-performance web applications, scalable microservices, and AI workflows.",
+    "location": "San Francisco, CA",
+    "linkedinUrl": "https://linkedin.com/in/example",
+    "githubUrl": "https://github.com/example",
+    "email": null,
+    "phone": null
+  },
+  "projects": [
+    {
+      "title": "Cross-System Integration Workflows",
+      "description": "Architected and maintained core data flows connecting frontend applications and backend microservices via REST and GraphQL.",
+      "technologies": "TypeScript, Node.js, Express, REST, GraphQL, Docker, AWS",
+      "imageFilename": "placeholder.svg",
+      "liveUrl": null,
+      "repoUrl": null
+    },
+    {
+      "title": "Scalable Data Pipeline & Caching Layer",
+      "description": "Engineered high-throughput integration layers with Redis caching and PostgreSQL for low-latency queries.",
+      "technologies": "Node.js, Redis, PostgreSQL, TypeScript, Docker",
+      "imageFilename": "placeholder.svg",
+      "liveUrl": null,
+      "repoUrl": null
+    },
+    {
+      "title": "AI-Assisted QA & Automation Tooling",
+      "description": "Developed internal automation tooling leveraging LLM APIs to accelerate code review and testing workflows.",
+      "technologies": "Python, TypeScript, CI/CD, OpenAI API, Gemini API",
+      "imageFilename": "placeholder.svg",
+      "liveUrl": null,
+      "repoUrl": null
+    }
+  ],
+  "skills": [
+    { "name": "TypeScript", "category": "Language", "proficiency": 95 },
+    { "name": "JavaScript (ES6+)", "category": "Language", "proficiency": 95 },
+    { "name": "Python", "category": "Language", "proficiency": 80 },
+    { "name": "HTML5 & SCSS", "category": "Language", "proficiency": 90 },
+    { "name": "SQL", "category": "Language", "proficiency": 85 },
+    { "name": "Angular", "category": "Frontend", "proficiency": 90 },
+    { "name": "React", "category": "Frontend", "proficiency": 80 },
+    { "name": "RxJS", "category": "Frontend", "proficiency": 85 },
+    { "name": "Node.js", "category": "Backend & APIs", "proficiency": 95 },
+    { "name": "NestJS / Express", "category": "Backend & APIs", "proficiency": 90 },
+    { "name": "REST & GraphQL", "category": "Backend & APIs", "proficiency": 95 },
+    { "name": "PostgreSQL & SQLite", "category": "Database & Caching", "proficiency": 85 },
+    { "name": "Redis", "category": "Database & Caching", "proficiency": 85 },
+    { "name": "AWS & Docker", "category": "Cloud & DevOps", "proficiency": 85 }
+  ],
+  "experience": [
+    {
+      "role": "Senior Fullstack Engineer",
+      "company": "Tech Solutions Inc.",
+      "companyUrl": "https://example.com",
+      "companyLogoUrl": "/api/media/images/placeholder.svg",
+      "startDate": "2022-01",
+      "endDate": null,
+      "description": "Architected cloud microservices, integrated third-party APIs, and led frontend development using Angular and NestJS."
+    },
+    {
+      "role": "Software Engineer",
+      "company": "Acme Corp",
+      "companyUrl": "https://example.com",
+      "companyLogoUrl": "/api/media/images/placeholder.svg",
+      "startDate": "2020-05",
+      "endDate": "2021-12",
+      "description": "Developed RESTful APIs and modern web UIs, optimized database queries, and implemented automated test suites."
+    }
+  ]
+}

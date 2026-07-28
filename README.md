@@ -83,6 +83,16 @@ cp backend/.env.example backend/.env
 
 SMTP is optional for local development — contact submissions still persist to the database, and a warning is logged if the email fails to send.
 
+### Customizing Personal Profile Data
+
+This repository is designed as an open-source template. To populate the portfolio with your own personal profile, resume, projects, and social links:
+
+```bash
+cp backend/data/cv-seed.json.example backend/data/cv-seed.json
+```
+
+Edit `backend/data/cv-seed.json` with your details. Because `backend/data/cv-seed.json` is listed in `.gitignore`, your personal information will stay private and won't be committed to Git.
+
 ### Seed the Database
 
 Populates the database with content (idempotent — only inserts if tables are empty):
@@ -90,8 +100,6 @@ Populates the database with content (idempotent — only inserts if tables are e
 ```bash
 npm run seed
 ```
-
-Local custom seed data can be placed in `backend/data/cv-seed.json` (untracked in `.gitignore`) so your personal details stay out of source control.
 
 ### Run in Development
 

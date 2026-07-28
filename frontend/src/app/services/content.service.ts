@@ -17,35 +17,68 @@ export class ContentService {
   experience = signal<ExperienceEntry[]>([]);
   loadError = signal<string | null>(null);
 
+  private loadingProfile = false;
+  private loadingProjects = false;
+  private loadingSkills = false;
+  private loadingExperience = false;
+
   loadProfile(): void {
-    if (this.profile()) return;
+    if (this.profile() || this.loadingProfile) return;
+    this.loadingProfile = true;
     this.http.get<Profile | null>(`${this.baseUrl}/api/profile`).subscribe({
-      next: (data: Profile | null) => this.profile.set(data),
-      error: () => this.loadError.set('Failed to load content. Please refresh.')
+      next: (data: Profile | null) => {
+        this.profile.set(data);
+        this.loadingProfile = false;
+      },
+      error: () => {
+        this.loadError.set('Failed to load content. Please refresh.');
+        this.loadingProfile = false;
+      }
     });
   }
 
   loadProjects(): void {
-    if (this.projects().length) return;
+    if (this.projects().length || this.loadingProjects) return;
+    this.loadingProjects = true;
     this.http.get<Project[]>(`${this.baseUrl}/api/projects`).subscribe({
-      next: (data: Project[]) => this.projects.set(data),
-      error: () => this.loadError.set('Failed to load content. Please refresh.')
+      next: (data: Project[]) => {
+        this.projects.set(data);
+        this.loadingProjects = false;
+      },
+      error: () => {
+        this.loadError.set('Failed to load content. Please refresh.');
+        this.loadingProjects = false;
+      }
     });
   }
 
   loadSkills(): void {
-    if (this.skills().length) return;
+    if (this.skills().length || this.loadingSkills) return;
+    this.loadingSkills = true;
     this.http.get<Skill[]>(`${this.baseUrl}/api/skills`).subscribe({
-      next: (data: Skill[]) => this.skills.set(data),
-      error: () => this.loadError.set('Failed to load content. Please refresh.')
+      next: (data: Skill[]) => {
+        this.skills.set(data);
+        this.loadingSkills = false;
+      },
+      error: () => {
+        this.loadError.set('Failed to load content. Please refresh.');
+        this.loadingSkills = false;
+      }
     });
   }
 
   loadExperience(): void {
-    if (this.experience().length) return;
+    if (this.experience().length || this.loadingExperience) return;
+    this.loadingExperience = true;
     this.http.get<ExperienceEntry[]>(`${this.baseUrl}/api/experience`).subscribe({
-      next: (data: ExperienceEntry[]) => this.experience.set(data),
-      error: () => this.loadError.set('Failed to load content. Please refresh.')
+      next: (data: ExperienceEntry[]) => {
+        this.experience.set(data);
+        this.loadingExperience = false;
+      },
+      error: () => {
+        this.loadError.set('Failed to load content. Please refresh.');
+        this.loadingExperience = false;
+      }
     });
   }
 }

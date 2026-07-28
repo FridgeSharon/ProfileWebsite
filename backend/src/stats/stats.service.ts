@@ -1,7 +1,7 @@
 import { Injectable, OnModuleInit, OnModuleDestroy } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, MoreThanOrEqual } from 'typeorm';
-import { ReplaySubject, Observable } from 'rxjs';
+import { Subject, Observable, merge, from } from 'rxjs';
 import { ContactRequest } from '../contact/entities/contact-request.entity';
 
 export interface StatsPayload {
@@ -11,7 +11,7 @@ export interface StatsPayload {
 
 @Injectable()
 export class StatsService implements OnModuleInit, OnModuleDestroy {
-  private readonly subject = new ReplaySubject<StatsPayload>(1);
+  private readonly subject = new Subject<StatsPayload>();
 
   constructor(
     @InjectRepository(ContactRequest)
@@ -48,6 +48,6 @@ export class StatsService implements OnModuleInit, OnModuleDestroy {
   }
 
   getStream(): Observable<StatsPayload> {
-    return this.subject.asObservable();
+    return merge(from(this.getSummary()), this.subject.asObservable());
   }
 }

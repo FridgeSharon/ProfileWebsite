@@ -7,6 +7,7 @@ coverage/
 *.sqlite
 backend/data/*
 !backend/data/.gitkeep
+!backend/data/cv-seed.json.example
 
 .DS_Store
 *.log
