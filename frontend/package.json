@@ -7,7 +7,7 @@
   "scripts": {
     "ng": "ng",
     "start": "ng serve",
-    "build": "node -e \"if(process.env.BACKEND_URL) require('fs').writeFileSync('src/_redirects', '/api/* ' + process.env.BACKEND_URL + '/api/:splat 200\\n')\" && ng build",
+    "build": "ng build && node -e \"if(process.env.BACKEND_URL) { require('fs').mkdirSync('dist/frontend/browser', {recursive: true}); require('fs').writeFileSync('dist/frontend/browser/_redirects', '/api/* ' + process.env.BACKEND_URL + '/api/:splat 200\\n'); }\"",
     "watch": "ng build --watch --configuration development"
   },
   "private": true,
