@@ -79,6 +79,7 @@ async function seed() {
       githubUrl: null,
       email: null,
       phone: null,
+      bio: null,
     };
     await profileRepo.save([profileItem]);
   }

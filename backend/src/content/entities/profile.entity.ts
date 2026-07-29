@@ -28,4 +28,7 @@ export class Profile {
 
   @Column({ type: 'text', nullable: true })
   phone: string | null;
+
+  @Column({ type: 'text', nullable: true })
+  bio: string | null;
 }
