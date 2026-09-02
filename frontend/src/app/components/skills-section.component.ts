@@ -10,7 +10,7 @@ import { SkillGroup } from '../data/portfolio-content';
         <div class="section-heading">
           <p class="eyebrow">Technical range</p>
           <h2 id="skills-title">Tools I use to deliver</h2>
-          <p>Grouped by the work they support, without arbitrary proficiency scores.</p>
+          <p>Technologies I use across backend systems, integrations, data, cloud delivery, and frontend work.</p>
         </div>
         <div class="skills-grid">
           @for (group of groups(); track group.title) {

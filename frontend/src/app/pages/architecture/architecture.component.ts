@@ -16,7 +16,7 @@ import { portfolioContent } from '../../data/portfolio-content';
 
       <section class="section" aria-labelledby="decisions-title">
         <div class="section-shell narrow-shell">
-          <div class="section-heading"><p class="eyebrow">Technical decisions</p><h2 id="decisions-title">Complexity must earn its place</h2></div>
+          <div class="section-heading"><p class="eyebrow">Technical decisions</p><h2 id="decisions-title">A focused static architecture</h2></div>
           <div class="decision-grid">
             @for (item of decisions; track item.title; let index = $index) {
               <article><span>0{{ index + 1 }}</span><h3>{{ item.title }}</h3><p>{{ item.description }}</p></article>
@@ -38,7 +38,7 @@ import { portfolioContent } from '../../data/portfolio-content';
       </section>
 
       <footer class="technical-footer section-shell narrow-shell">
-        <div><h2>Want to inspect the implementation?</h2><p>The repository is public, but the work—not the label—is the point.</p></div>
+        <div><h2>Want to inspect the implementation?</h2><p>The implementation is available in the public repository.</p></div>
         <div class="footer-actions">
           <a class="button secondary" [href]="profile.repositoryUrl" target="_blank" rel="noopener noreferrer">View repository <span aria-hidden="true">↗</span></a>
           <a class="text-link" routerLink="/">Back to portfolio</a>
@@ -74,7 +74,7 @@ import { portfolioContent } from '../../data/portfolio-content';
 export class ArchitectureComponent {
   protected readonly profile = portfolioContent.profile;
   protected readonly decisions = [
-    { title: 'Static by design', description: 'The content changes with the code, so a runtime API would add latency and failure modes without adding user value.' },
+    { title: 'Static by design', description: 'Portfolio content is compiled with the application and served as static HTML and assets.' },
     { title: 'Prerendered for clarity', description: 'Each route ships meaningful HTML for fast rendering, resilient navigation, search engines, and link previews.' },
     { title: 'Private by default', description: 'The site has no contact form, visitor ID, analytics beacon, application cookie, or personal-data store.' },
     { title: 'Accessible interaction', description: 'Semantic structure, keyboard navigation, visible focus, responsive layouts, and reduced-motion behavior are part of the implementation.' },

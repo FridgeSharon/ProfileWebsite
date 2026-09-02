@@ -58,7 +58,7 @@ export const portfolioContent = {
       'I design distributed workflows, REST and gRPC APIs, and cloud-native services across AWS, MySQL, MongoDB, PostgreSQL, and Redis.',
     about: [
       'I am most useful where systems need to connect reliably: APIs, data flows, cloud infrastructure, and the operational details between them.',
-      'My background spans software engineering and systems administration, which helps me debug across application, data, and infrastructure boundaries. I use AI-assisted tools pragmatically to accelerate implementation and verification without outsourcing engineering judgment.',
+      'My background spans software engineering and systems administration, which helps me debug across application, data, and infrastructure boundaries. AI tools are part of my workflow for implementation, refactoring, and QA.',
     ],
     location: 'Tel Aviv, Israel',
     availability: 'Open to backend, fullstack, and integrations roles',
@@ -130,10 +130,10 @@ export const portfolioContent = {
       title: 'ProfileWebsite',
       label: 'Live portfolio',
       description:
-        'An advanced static Angular portfolio built for fast, resilient delivery on Cloudflare Pages. The architecture deliberately removes an unnecessary backend, database, and analytics layer in favor of privacy and operational simplicity.',
+        'An advanced static Angular portfolio delivered through Cloudflare Pages, with prerendered pages, focused accessibility, and a small operational footprint.',
       highlights: [
         'Build-time prerendering for meaningful HTML before JavaScript runs',
-        'Typed local content with no runtime API dependency',
+        'Typed local content shared across every route',
         'Accessible, responsive, and print-ready presentation',
       ],
       technologies: ['Angular 22', 'TypeScript 6', 'Signals', 'SCSS', 'Cloudflare Pages'],
