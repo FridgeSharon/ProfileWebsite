@@ -2,17 +2,7 @@ node_modules/
 dist/
 .angular/
 coverage/
-
-.env
-*.sqlite
-backend/data/*
-!backend/data/.gitkeep
-!backend/data/cv-seed.json.example
-
 .DS_Store
 *.log
 npm-debug.log*
 *.js.map
-backend/test/*.js
-backend/test/*.d.ts
-frontend/src/_redirects

@@ -1,40 +1,36 @@
-import { Component, ChangeDetectionStrategy, inject, OnInit } from '@angular/core';
-import { ContentService } from '../../services/content.service';
+import { ChangeDetectionStrategy, Component } from '@angular/core';
 import { HeroComponent } from '../../components/hero.component';
-import { AboutSectionComponent } from '../../components/about-section.component';
-import { SkillsSectionComponent } from '../../components/skills-section.component';
-import { ProjectsSectionComponent } from '../../components/projects-section.component';
+import { StrengthsSectionComponent } from '../../components/strengths-section.component';
 import { ExperienceSectionComponent } from '../../components/experience-section.component';
+import { ProjectsSectionComponent } from '../../components/projects-section.component';
+import { SkillsSectionComponent } from '../../components/skills-section.component';
+import { EducationSectionComponent } from '../../components/education-section.component';
 import { ContactSectionComponent } from '../../components/contact-section.component';
+import { portfolioContent } from '../../data/portfolio-content';
 
 @Component({
   selector: 'app-home',
   standalone: true,
   imports: [
     HeroComponent,
-    AboutSectionComponent,
-    SkillsSectionComponent,
-    ProjectsSectionComponent,
+    StrengthsSectionComponent,
     ExperienceSectionComponent,
-    ContactSectionComponent
+    ProjectsSectionComponent,
+    SkillsSectionComponent,
+    EducationSectionComponent,
+    ContactSectionComponent,
   ],
   template: `
-    <app-hero></app-hero>
-    <app-about-section></app-about-section>
-    <app-skills-section [skills]="content.skills()"></app-skills-section>
-    <app-projects-section [projects]="content.projects()"></app-projects-section>
-    <app-experience-section [experience]="content.experience()"></app-experience-section>
-    <app-contact-section></app-contact-section>
+    <app-hero />
+    <app-strengths-section [about]="content.profile.about" [strengths]="content.strengths" />
+    <app-experience-section [experience]="content.experience" />
+    <app-projects-section [caseStudies]="content.caseStudies" />
+    <app-skills-section [groups]="content.skillGroups" />
+    <app-education-section [education]="content.education" [languages]="content.languages" />
+    <app-contact-section />
   `,
-  changeDetection: ChangeDetectionStrategy.OnPush
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class HomeComponent implements OnInit {
-  content = inject(ContentService);
-
-  ngOnInit() {
-    this.content.loadProfile();
-    this.content.loadProjects();
-    this.content.loadSkills();
-    this.content.loadExperience();
-  }
+export class HomeComponent {
+  protected readonly content = portfolioContent;
 }

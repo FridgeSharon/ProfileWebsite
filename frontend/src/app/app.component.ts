@@ -1,296 +1,145 @@
-import { Component, ChangeDetectionStrategy, inject, OnInit, effect } from '@angular/core';
-import { RouterOutlet, RouterLink, Router, NavigationEnd } from '@angular/router';
-import { Title, Meta } from '@angular/platform-browser';
+import { DOCUMENT } from '@angular/common';
+import { ChangeDetectionStrategy, Component, Inject, signal } from '@angular/core';
+import { Meta, Title } from '@angular/platform-browser';
+import { NavigationEnd, Router, RouterLink, RouterOutlet } from '@angular/router';
 import { filter } from 'rxjs';
-import { ContentService } from './services/content.service';
-import { StatsService } from './services/stats.service';
+import { portfolioContent } from './data/portfolio-content';
+
+const SITE_URL = 'https://guysharon.pages.dev';
 
 @Component({
   selector: 'app-root',
   standalone: true,
   imports: [RouterOutlet, RouterLink],
   template: `
-    <!-- Static Animated Background -->
-    <div class="fixed-background">
-      <div class="bg-blob blob-1"></div>
-      <div class="bg-blob blob-2"></div>
-      <div class="bg-blob blob-3"></div>
+    <a class="skip-link" [routerLink]="[]" fragment="main-content">Skip to main content</a>
+    <div class="fixed-background" aria-hidden="true">
+      <div class="aurora aurora-one"></div>
+      <div class="aurora aurora-two"></div>
       <div class="grid-overlay"></div>
     </div>
 
-    <!-- Foreground Application Content -->
-    @let profile = content.profile();
-    <nav class="navbar">
-      <div class="nav-content">
-        <a routerLink="/" (click)="scrollToTop($event)" class="brand">{{ profile?.name || 'Portfolio' }}</a>
-        <div class="nav-links">
-          <button (click)="scrollTo('skills')" class="nav-btn">Skills</button>
-          <button (click)="scrollTo('projects')" class="nav-btn">Projects</button>
-          <button (click)="scrollTo('experience')" class="nav-btn">Experience</button>
-          <button (click)="scrollTo('contact')" class="nav-btn">Contact</button>
-          <a routerLink="/architecture" class="arch-link">⚡ Source Code</a>
-          <a routerLink="/cv" class="cv-link">CV</a>
+    <header class="site-header">
+      <nav class="nav-shell" aria-label="Primary navigation">
+        <a routerLink="/" class="brand" (click)="closeMenu()" aria-label="Guy Sharon, home">
+          <span class="brand-mark" aria-hidden="true">GS</span>
+          <span>Guy Sharon</span>
+        </a>
+        <button class="menu-toggle" type="button" (click)="toggleMenu()" [attr.aria-expanded]="menuOpen()" aria-controls="site-menu">
+          <span class="sr-only">Toggle navigation</span>
+          <span aria-hidden="true"></span><span aria-hidden="true"></span><span aria-hidden="true"></span>
+        </button>
+        <div id="site-menu" class="nav-links" [class.open]="menuOpen()">
+          <a routerLink="/" fragment="experience" (click)="closeMenu()">Experience</a>
+          <a routerLink="/" fragment="work" (click)="closeMenu()">Work</a>
+          <a routerLink="/" fragment="skills" (click)="closeMenu()">Skills</a>
+          <a routerLink="/cv" (click)="closeMenu()">CV</a>
+          <a class="nav-cta" [href]="profile.linkedinUrl" target="_blank" rel="noopener noreferrer" (click)="closeMenu()">LinkedIn <span aria-hidden="true">↗</span></a>
         </div>
-      </div>
-    </nav>
-    <main>
-      <router-outlet></router-outlet>
-    </main>
-    <footer class="footer">
-      <div class="footer-content">
-        <p>&copy; {{ currentYear }} {{ profile?.name || 'Portfolio' }}. All rights reserved.</p>
-        <div class="footer-links">
-          <a routerLink="/architecture">Architecture & Source Code</a>
-          <span>•</span>
+      </nav>
+    </header>
+
+    <main id="main-content" tabindex="-1"><router-outlet /></main>
+
+    <footer class="site-footer">
+      <div class="footer-shell">
+        <div><strong>{{ profile.name }}</strong><p>{{ profile.role }}</p></div>
+        <nav aria-label="Footer navigation">
+          <a routerLink="/architecture">About this site</a>
           <a routerLink="/cv">CV</a>
-          @if (profile?.linkedinUrl) {
-            <span>•</span>
-            <a [href]="profile?.linkedinUrl" (click)="stats.trackLinkedInClick()" target="_blank" rel="noopener">LinkedIn</a>
-          }
-        </div>
+          <a [href]="profile.githubUrl" target="_blank" rel="noopener noreferrer">GitHub</a>
+          <a [href]="profile.linkedinUrl" target="_blank" rel="noopener noreferrer">LinkedIn</a>
+        </nav>
+        <p class="copyright">© {{ currentYear }} Guy Sharon</p>
       </div>
     </footer>
   `,
   styles: [`
-    .fixed-background {
-      position: fixed;
-      inset: 0;
-      z-index: -10;
-      background: #040407;
-      pointer-events: none;
-      overflow: hidden;
-    }
-    .grid-overlay {
-      position: absolute;
-      inset: 0;
-      background-image: 
-        linear-gradient(rgba(255, 255, 255, 0.02) 1px, transparent 1px),
-        linear-gradient(90deg, rgba(255, 255, 255, 0.02) 1px, transparent 1px);
-      background-size: 60px 60px;
-      opacity: 0.8;
-    }
-    .bg-blob {
-      position: absolute;
-      border-radius: 50%;
-      filter: blur(100px);
-      opacity: 0.4;
-      will-change: transform;
-    }
-    .blob-1 {
-      top: -15%;
-      left: -10%;
-      width: 55vw;
-      height: 55vw;
-      background: radial-gradient(circle, rgba(168, 85, 247, 0.35) 0%, rgba(124, 58, 237, 0.08) 70%, transparent 100%);
-      animation: float1 22s ease-in-out infinite alternate;
-    }
-    .blob-2 {
-      bottom: -15%;
-      right: -10%;
-      width: 60vw;
-      height: 60vw;
-      background: radial-gradient(circle, rgba(59, 130, 246, 0.3) 0%, rgba(14, 165, 233, 0.08) 70%, transparent 100%);
-      animation: float2 28s ease-in-out infinite alternate;
-    }
-    .blob-3 {
-      top: 35%;
-      left: 25%;
-      width: 45vw;
-      height: 45vw;
-      background: radial-gradient(circle, rgba(236, 72, 153, 0.2) 0%, rgba(168, 85, 247, 0.05) 70%, transparent 100%);
-      animation: float3 25s ease-in-out infinite alternate;
-    }
-    @keyframes float1 {
-      0% { transform: translate(0, 0) scale(1); }
-      50% { transform: translate(8%, 12%) scale(1.1); }
-      100% { transform: translate(-5%, 8%) scale(0.95); }
-    }
-    @keyframes float2 {
-      0% { transform: translate(0, 0) scale(1); }
-      50% { transform: translate(-10%, -8%) scale(1.15); }
-      100% { transform: translate(6%, -12%) scale(0.9); }
-    }
-    @keyframes float3 {
-      0% { transform: translate(0, 0) scale(0.9); }
-      50% { transform: translate(-8%, 10%) scale(1.1); }
-      100% { transform: translate(10%, -6%) scale(1); }
-    }
-
-    .navbar {
-      position: sticky;
-      top: 0;
-      z-index: 100;
-      background: rgba(8, 8, 14, 0.82);
-      backdrop-filter: blur(14px);
-      border-bottom: 1px solid rgba(255,255,255,0.08);
-      padding: 0.85rem 2rem;
-    }
-    .nav-content {
-      max-width: 1200px;
-      margin: 0 auto;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-    .brand {
-      font-weight: 700;
-      font-size: 1.25rem;
-      background: linear-gradient(90deg, #a855f7, #3b82f6);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      text-decoration: none;
-    }
-    .nav-links {
-      display: flex;
-      align-items: center;
-      gap: 1.1rem;
-    }
-    .nav-btn {
-      background: none;
-      border: none;
-      color: #94a3b8;
-      font-weight: 500;
-      font-size: 0.95rem;
-      cursor: pointer;
-      padding: 0.35rem 0.6rem;
-      border-radius: 6px;
-      transition: all 0.2s ease;
-    }
-    .nav-btn:hover {
-      color: #f8fafc;
-      background: rgba(255, 255, 255, 0.05);
-    }
-    .arch-link {
-      font-weight: 600;
-      font-size: 0.88rem;
-      color: #38bdf8;
-      background: rgba(56, 189, 248, 0.1);
-      border: 1px solid rgba(56, 189, 248, 0.3);
-      padding: 0.35rem 0.85rem;
-      border-radius: 20px;
-      text-decoration: none;
-      transition: all 0.25s ease;
-    }
-    .arch-link:hover {
-      background: rgba(56, 189, 248, 0.2);
-      border-color: #38bdf8;
-      color: #fff;
-      box-shadow: 0 0 15px rgba(56, 189, 248, 0.3);
-    }
-    .cv-link {
-      font-weight: 600;
-      font-size: 0.88rem;
-      color: #a855f7;
-      border: 1px solid rgba(168, 85, 247, 0.4);
-      padding: 0.35rem 0.85rem;
-      border-radius: 20px;
-      text-decoration: none;
-      transition: all 0.25s ease;
-    }
-    .cv-link:hover {
-      background: rgba(168, 85, 247, 0.15);
-      border-color: #a855f7;
-      color: #fff;
-    }
-    main {
-      min-height: calc(100vh - 140px);
-    }
-    .footer {
-      background: rgba(5, 5, 8, 0.85);
-      backdrop-filter: blur(10px);
-      padding: 2.5rem 2rem;
-      border-top: 1px solid rgba(255,255,255,0.05);
-      color: #64748b;
-      font-size: 0.9rem;
-    }
-    .footer-content {
-      max-width: 1200px;
-      margin: 0 auto;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      flex-wrap: wrap;
-      gap: 1rem;
-    }
-    .footer-content p {
-      margin: 0;
-    }
-    .footer-links {
-      display: flex;
-      gap: 0.75rem;
-      align-items: center;
-    }
-    .footer-links a {
-      color: #94a3b8;
-      text-decoration: none;
-      transition: color 0.2s ease;
-    }
-    .footer-links a:hover {
-      color: #38bdf8;
+    .skip-link { position: fixed; top: .75rem; left: .75rem; z-index: 1000; transform: translateY(-200%); padding: .7rem 1rem; color: #fff; background: var(--accent); border-radius: .5rem; font-weight: 700; }
+    .skip-link:focus { transform: translateY(0); }
+    .fixed-background { position: fixed; inset: 0; z-index: -1; overflow: hidden; background: var(--background); pointer-events: none; }
+    .grid-overlay { position: absolute; inset: 0; background-image: linear-gradient(rgba(255,255,255,.018) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,.018) 1px, transparent 1px); background-size: 56px 56px; mask-image: linear-gradient(to bottom, black, transparent 70%); }
+    .aurora { position: absolute; width: 44rem; height: 44rem; border-radius: 50%; filter: blur(120px); opacity: .18; }
+    .aurora-one { top: -25rem; left: -12rem; background: #765bff; }
+    .aurora-two { top: 20rem; right: -28rem; background: #248dff; }
+    .site-header { position: sticky; top: 0; z-index: 100; border-bottom: 1px solid rgba(255,255,255,.06); background: rgba(7,9,16,.82); backdrop-filter: blur(18px); }
+    .nav-shell { display: flex; align-items: center; justify-content: space-between; max-width: 1180px; height: 72px; margin: 0 auto; padding: 0 1.25rem; }
+    .brand { display: inline-flex; align-items: center; gap: .7rem; font-weight: 800; letter-spacing: -.02em; }
+    .brand-mark { display: grid; width: 2rem; height: 2rem; place-items: center; color: #fff; background: linear-gradient(135deg, var(--accent), #3ca7ff); border-radius: .55rem; font: 800 .7rem/1 var(--font-mono); }
+    .nav-links { display: flex; align-items: center; gap: 1.35rem; color: var(--text-muted); font-size: .9rem; font-weight: 650; }
+    .nav-links a:hover, .nav-links a:focus-visible { color: var(--text); }
+    .nav-cta { padding: .6rem .9rem; color: var(--text) !important; background: rgba(255,255,255,.07); border: 1px solid var(--border-strong); border-radius: .65rem; }
+    .menu-toggle { display: none; width: 2.75rem; height: 2.75rem; padding: .65rem; background: transparent; border: 1px solid var(--border); border-radius: .6rem; }
+    .menu-toggle span:not(.sr-only) { display: block; height: 2px; margin: 4px 0; background: var(--text); }
+    .site-footer { border-top: 1px solid var(--border); background: rgba(6,8,14,.74); }
+    .footer-shell { display: grid; grid-template-columns: 1fr auto; gap: 2rem; max-width: 1180px; margin: 0 auto; padding: 3rem 1.25rem; }
+    .footer-shell > div p, .copyright { margin-top: .3rem; color: var(--text-soft); font-size: .82rem; }
+    .footer-shell nav { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 1rem 1.4rem; color: var(--text-muted); font-size: .85rem; }
+    .copyright { grid-column: 1 / -1; }
+    @media (max-width: 720px) {
+      .menu-toggle { display: block; }
+      .nav-links { position: absolute; top: 72px; left: 0; right: 0; display: none; flex-direction: column; align-items: stretch; gap: 0; padding: .75rem 1.25rem 1.25rem; background: rgba(7,9,16,.98); border-bottom: 1px solid var(--border); }
+      .nav-links.open { display: flex; }
+      .nav-links a { padding: .85rem 0; }
+      .nav-cta { margin-top: .4rem; padding: .8rem !important; text-align: center; }
+      .footer-shell { grid-template-columns: 1fr; }
+      .footer-shell nav { justify-content: flex-start; }
+      .copyright { grid-column: auto; }
     }
   `],
-  changeDetection: ChangeDetectionStrategy.OnPush
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class AppComponent implements OnInit {
-  content = inject(ContentService);
-  stats = inject(StatsService);
-  router = inject(Router);
-  titleService = inject(Title);
-  metaService = inject(Meta);
-  currentYear = new Date().getFullYear();
+export class AppComponent {
+  protected readonly profile = portfolioContent.profile;
+  protected readonly currentYear = new Date().getFullYear();
+  protected readonly menuOpen = signal(false);
 
-  constructor() {
-    effect(() => {
-      const profile = this.content.profile();
-      if (profile?.name) {
-        const pageTitle = `${profile.name} - ${profile.title || 'Fullstack'}`;
-        this.titleService.setTitle(pageTitle);
-        this.metaService.updateTag({ name: 'description', content: `${profile.name} — ${profile.title || 'Fullstack'}. ${profile.tagline || ''}` });
-        this.metaService.updateTag({ property: 'og:title', content: pageTitle });
-      }
+  constructor(
+    private readonly router: Router,
+    private readonly title: Title,
+    private readonly meta: Meta,
+    @Inject(DOCUMENT) private readonly document: Document,
+  ) {
+    this.router.events.pipe(filter((event): event is NavigationEnd => event instanceof NavigationEnd)).subscribe((event) => {
+      this.closeMenu();
+      this.updateMetadata(event.urlAfterRedirects.split('#')[0]);
     });
-
-    if (typeof window !== 'undefined' && 'scrollRestoration' in window.history) {
-      window.history.scrollRestoration = 'manual';
-    }
-
-    this.router.events.pipe(
-      filter((e): e is NavigationEnd => e instanceof NavigationEnd)
-    ).subscribe((event) => {
-      const urlTree = this.router.parseUrl(event.urlAfterRedirects || event.url);
-      const fragment = urlTree.fragment;
-
-      if (fragment) {
-        this.scrollToSection(fragment);
-      } else if (urlTree.root.children['primary']?.segments[0]?.path === '' || event.url === '/' || event.url.startsWith('/#')) {
-        window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
-      }
-    });
+    this.updateMetadata(this.router.url.split('#')[0]);
   }
 
-  ngOnInit() {
-    this.content.loadProfile();
-  }
+  protected toggleMenu(): void { this.menuOpen.update((open) => !open); }
+  protected closeMenu(): void { this.menuOpen.set(false); }
 
-  scrollToTop(event: Event) {
-    event.preventDefault();
-    this.router.navigate(['/']);
-    window.scrollTo({ top: 0, left: 0, behavior: 'smooth' });
-  }
-
-  scrollTo(sectionId: string) {
-    this.router.navigate(['/'], { fragment: sectionId });
-    this.scrollToSection(sectionId);
-  }
-
-  private scrollToSection(sectionId: string) {
-    const doScroll = () => {
-      const el = document.getElementById(sectionId);
-      if (el) {
-        el.scrollIntoView({ behavior: 'smooth', block: 'start' });
-      }
+  private updateMetadata(path: string): void {
+    const pages: Record<string, { title: string; description: string }> = {
+      '/cv': {
+        title: 'CV | Guy Sharon - Backend Engineer',
+        description: 'Guy Sharon’s professional experience, technical skills, education, and languages.',
+      },
+      '/architecture': {
+        title: 'About This Site | Guy Sharon',
+        description: 'How Guy Sharon’s static Angular portfolio is built for accessibility, privacy, and Cloudflare Pages.',
+      },
+      '/': {
+        title: 'Guy Sharon | Backend TypeScript & Node.js Engineer',
+        description: 'Backend-focused TypeScript and Node.js engineer specializing in integrations, distributed workflows, and AWS systems.',
+      },
     };
-    setTimeout(doScroll, 50);
-    setTimeout(doScroll, 250);
+    const page = pages[path] ?? pages['/'];
+    const canonicalUrl = `${SITE_URL}${path === '/' ? '' : path}`;
+    this.title.setTitle(page.title);
+    this.meta.updateTag({ name: 'description', content: page.description });
+    this.meta.updateTag({ property: 'og:title', content: page.title });
+    this.meta.updateTag({ property: 'og:description', content: page.description });
+    this.meta.updateTag({ property: 'og:url', content: canonicalUrl });
+    this.meta.updateTag({ name: 'twitter:title', content: page.title });
+    this.meta.updateTag({ name: 'twitter:description', content: page.description });
+    let canonical = this.document.querySelector<HTMLLinkElement>('link[rel="canonical"]');
+    if (!canonical) {
+      canonical = this.document.createElement('link');
+      canonical.rel = 'canonical';
+      this.document.head.appendChild(canonical);
+    }
+    canonical.href = canonicalUrl;
   }
 }

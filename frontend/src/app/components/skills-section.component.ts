@@ -1,91 +1,42 @@
-import { Component, ChangeDetectionStrategy, input } from '@angular/core';
-import { Skill } from '../models/skill';
+import { ChangeDetectionStrategy, Component, input } from '@angular/core';
+import { SkillGroup } from '../data/portfolio-content';
 
 @Component({
   selector: 'app-skills-section',
   standalone: true,
   template: `
-    <section id="skills" class="skills-section">
-      <div class="container">
-        <h2>My Skills</h2>
+    <section id="skills" class="section" aria-labelledby="skills-title">
+      <div class="section-shell">
+        <div class="section-heading">
+          <p class="eyebrow">Technical range</p>
+          <h2 id="skills-title">Tools I use to deliver</h2>
+          <p>Grouped by the work they support, without arbitrary proficiency scores.</p>
+        </div>
         <div class="skills-grid">
-          @for (skill of skills(); track skill.id) {
-            <div class="skill-card">
-              <div class="skill-header">
-                <span class="skill-name">{{ skill.name }}</span>
-              </div>
-              <div class="progress-bar-bg">
-                <div class="progress-bar-fill" [style.width.%]="skill.proficiency"></div>
-              </div>
-            </div>
+          @for (group of groups(); track group.title) {
+            <article>
+              <h3>{{ group.title }}</h3>
+              <ul>
+                @for (skill of group.skills; track skill) { <li>{{ skill }}</li> }
+              </ul>
+            </article>
           }
         </div>
       </div>
     </section>
   `,
   styles: [`
-    .skills-section {
-      padding: 5rem 2rem;
-      background: transparent;
-      scroll-margin-top: 70px;
-    }
-    .container {
-      max-width: 1200px;
-      margin: 0 auto;
-    }
-    h2 {
-      font-size: 2.5rem;
-      margin-bottom: 3rem;
-      text-align: center;
-      background: linear-gradient(90deg, #f8fafc, #94a3b8);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-    }
-    .skills-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-      gap: 1.5rem;
-    }
-    .skill-card {
-      background: rgba(255, 255, 255, 0.025);
-      backdrop-filter: blur(10px);
-      border: 1px solid rgba(255, 255, 255, 0.07);
-      border-radius: 14px;
-      padding: 1.25rem 1.5rem;
-      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    }
-    .skill-card:hover {
-      transform: translateY(-4px);
-      box-shadow: 0 12px 30px rgba(124, 58, 237, 0.18);
-      border-color: rgba(168, 85, 247, 0.4);
-      background: rgba(255, 255, 255, 0.04);
-    }
-    .skill-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 0.85rem;
-    }
-    .skill-name {
-      font-weight: 600;
-      font-size: 1.05rem;
-      color: #f1f5f9;
-    }
-    .progress-bar-bg {
-      height: 6px;
-      background: rgba(255, 255, 255, 0.08);
-      border-radius: 3px;
-      overflow: hidden;
-    }
-    .progress-bar-fill {
-      height: 100%;
-      background: linear-gradient(90deg, #a855f7, #3b82f6);
-      border-radius: 3px;
-      transition: width 1s ease-out;
-    }
+    .skills-grid { display: grid; grid-template-columns: repeat(3, 1fr); border-top: 1px solid var(--border-strong); border-left: 1px solid var(--border-strong); }
+    article { padding: 1.5rem; border-right: 1px solid var(--border-strong); border-bottom: 1px solid var(--border-strong); }
+    h3 { color: var(--accent-soft); font: 700 .8rem/1.4 var(--font-mono); letter-spacing: .08em; text-transform: uppercase; }
+    ul { display: flex; flex-wrap: wrap; gap: .55rem; margin: 1.2rem 0 0; padding: 0; list-style: none; }
+    li { color: var(--text-muted); }
+    li:not(:last-child)::after { content: ' /'; color: var(--border-strong); }
+    @media (max-width: 820px) { .skills-grid { grid-template-columns: repeat(2, 1fr); } }
+    @media (max-width: 520px) { .skills-grid { grid-template-columns: 1fr; } }
   `],
-  changeDetection: ChangeDetectionStrategy.OnPush
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class SkillsSectionComponent {
-  skills = input.required<Skill[]>();
+  groups = input.required<readonly SkillGroup[]>();
 }

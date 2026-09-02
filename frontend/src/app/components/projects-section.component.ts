@@ -1,181 +1,53 @@
-import { Component, ChangeDetectionStrategy, input, computed } from '@angular/core';
-import { Project } from '../models/project';
-import { resolveMediaUrl } from '../utils/media.utils';
+import { ChangeDetectionStrategy, Component, input } from '@angular/core';
+import { CaseStudy } from '../data/portfolio-content';
 
 @Component({
   selector: 'app-projects-section',
   standalone: true,
   template: `
-    <section id="projects" class="projects-section">
-      <div class="container">
-        <h2>Featured Projects</h2>
-        <div class="projects-grid">
-          @for (project of processedProjects(); track project.id) {
-            <div class="project-card">
-              <div class="project-image">
-                @if (project.imageFilename) {
-                  <img [src]="resolveMediaUrl(project.imageFilename)" [alt]="project.title" loading="lazy">
-                } @else {
-                  <div class="image-placeholder"></div>
-                }
-              </div>
-              <div class="project-content">
-                <h3>{{ project.title }}</h3>
-                <p>{{ project.description }}</p>
-                <div class="tags">
-                  @for (tech of project.techList; track tech) {
-                    <span class="tag">{{ tech }}</span>
-                  }
-                </div>
-                @if (project.liveUrl || project.repoUrl) {
-                  <div class="links">
-                    @if (project.liveUrl) {
-                      <a [href]="project.liveUrl" target="_blank" rel="noopener" class="link-btn">Live Demo</a>
-                    }
-                    @if (project.repoUrl) {
-                      <a [href]="project.repoUrl" target="_blank" rel="noopener" class="link-btn outline">GitHub</a>
-                    }
-                  </div>
-                }
-              </div>
-            </div>
+    <section id="work" class="section" aria-labelledby="work-title">
+      <div class="section-shell">
+        <div class="section-heading">
+          <p class="eyebrow">Selected work</p>
+          <h2 id="work-title">Architecture with a reason</h2>
+          <p>Projects where technical choices follow the product, privacy, and operational constraints.</p>
+        </div>
+        <div class="case-grid">
+          @for (study of caseStudies(); track study.title; let index = $index) {
+            <article class="case-card">
+              <header><span>{{ study.label }}</span><span aria-hidden="true">0{{ index + 1 }}</span></header>
+              <h3>{{ study.title }}</h3>
+              <p>{{ study.description }}</p>
+              <ul class="highlights">
+                @for (highlight of study.highlights; track highlight) { <li>{{ highlight }}</li> }
+              </ul>
+              <ul class="tag-list" aria-label="Technologies">
+                @for (technology of study.technologies; track technology) { <li>{{ technology }}</li> }
+              </ul>
+              @if (study.url) {
+                <a class="case-link" [href]="study.url" target="_blank" rel="noopener noreferrer">{{ study.linkLabel }} <span aria-hidden="true">↗</span></a>
+              }
+            </article>
           }
         </div>
       </div>
     </section>
   `,
   styles: [`
-    .projects-section {
-      padding: 5rem 2rem;
-      background: transparent;
-      scroll-margin-top: 70px;
-    }
-    .container {
-      max-width: 1200px;
-      margin: 0 auto;
-    }
-    h2 {
-      font-size: 2.5rem;
-      margin-bottom: 3rem;
-      text-align: center;
-      background: linear-gradient(90deg, #f8fafc, #94a3b8);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-    }
-    .projects-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
-      gap: 2rem;
-    }
-    .project-card {
-      background: rgba(255, 255, 255, 0.025);
-      backdrop-filter: blur(10px);
-      border: 1px solid rgba(255, 255, 255, 0.07);
-      border-radius: 16px;
-      overflow: hidden;
-      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-      display: flex;
-      flex-direction: column;
-    }
-    .project-card:hover {
-      transform: translateY(-6px);
-      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
-      border-color: rgba(59, 130, 246, 0.4);
-      background: rgba(255, 255, 255, 0.035);
-    }
-    .project-image {
-      height: 210px;
-      width: 100%;
-      position: relative;
-      overflow: hidden;
-      background: #050508;
-    }
-    .project-image img {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-      transition: transform 0.4s ease;
-    }
-    .project-card:hover .project-image img {
-      transform: scale(1.04);
-    }
-    .image-placeholder {
-      width: 100%;
-      height: 100%;
-      background: linear-gradient(45deg, #1e1b4b, #0f172a);
-    }
-    .project-content {
-      padding: 1.5rem;
-      display: flex;
-      flex-direction: column;
-      flex: 1;
-    }
-    h3 {
-      margin: 0 0 0.75rem;
-      font-size: 1.35rem;
-      font-weight: 600;
-      color: #f8fafc;
-    }
-    p {
-      color: #94a3b8;
-      line-height: 1.6;
-      font-size: 0.95rem;
-      margin-bottom: 1.25rem;
-      flex: 1;
-    }
-    .tags {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 0.4rem;
-      margin-bottom: 1.25rem;
-    }
-    .tag {
-      font-size: 0.78rem;
-      font-weight: 500;
-      background: rgba(168, 85, 247, 0.12);
-      color: #c084fc;
-      border: 1px solid rgba(168, 85, 247, 0.25);
-      padding: 0.2rem 0.65rem;
-      border-radius: 9999px;
-    }
-    .links {
-      display: flex;
-      gap: 0.75rem;
-    }
-    .link-btn {
-      flex: 1;
-      text-align: center;
-      padding: 0.6rem;
-      border-radius: 8px;
-      font-weight: 600;
-      font-size: 0.85rem;
-      transition: all 0.3s ease;
-      background: rgba(255, 255, 255, 0.08);
-      color: #fff;
-      text-decoration: none;
-    }
-    .link-btn:hover {
-      background: rgba(255, 255, 255, 0.18);
-    }
-    .link-btn.outline {
-      background: transparent;
-      border: 1px solid rgba(255, 255, 255, 0.2);
-    }
-    .link-btn.outline:hover {
-      background: rgba(255, 255, 255, 0.1);
-    }
+    .case-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 1rem; }
+    .case-card { display: flex; flex-direction: column; min-height: 440px; padding: clamp(1.5rem, 3vw, 2.25rem); background: linear-gradient(155deg, var(--surface-strong), var(--surface)); border: 1px solid var(--border); border-radius: var(--radius-xl); }
+    header { display: flex; justify-content: space-between; color: var(--accent-soft); font: 700 .72rem/1.4 var(--font-mono); letter-spacing: .08em; text-transform: uppercase; }
+    h3 { margin-top: 3.5rem; font-size: clamp(1.6rem, 3vw, 2.15rem); }
+    .case-card > p { margin-top: .8rem; color: var(--text-muted); }
+    .highlights { display: grid; gap: .65rem; margin: 1.5rem 0; padding-left: 1.1rem; color: var(--text-muted); }
+    .highlights li::marker { color: var(--accent); }
+    .tag-list { display: flex; flex-wrap: wrap; gap: .4rem; margin: auto 0 0; padding: 0; list-style: none; }
+    .tag-list li { padding: .3rem .55rem; color: var(--text-soft); background: rgba(255,255,255,.045); border-radius: .4rem; font: 600 .7rem/1.2 var(--font-mono); }
+    .case-link { margin-top: 1.4rem; color: var(--accent-soft); font-weight: 800; }
+    @media (max-width: 760px) { .case-grid { grid-template-columns: 1fr; } .case-card { min-height: auto; } h3 { margin-top: 2rem; } .tag-list { margin-top: 1.5rem; } }
   `],
-  changeDetection: ChangeDetectionStrategy.OnPush
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ProjectsSectionComponent {
-  projects = input.required<Project[]>();
-  
-  processedProjects = computed(() =>
-    this.projects().map(p => ({
-      ...p,
-      techList: p.technologies.split(',').map(t => t.trim()).filter(t => t.length > 0),
-    }))
-  );
-
-  resolveMediaUrl = resolveMediaUrl;
+  caseStudies = input.required<readonly CaseStudy[]>();
 }

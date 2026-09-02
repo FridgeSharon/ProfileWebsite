@@ -1,183 +1,53 @@
-import { Component, ChangeDetectionStrategy, input } from '@angular/core';
-import { NgTemplateOutlet } from '@angular/common';
-import { ExperienceEntry } from '../models/experience';
-import { resolveMediaUrl, getInitials } from '../utils/media.utils';
+import { ChangeDetectionStrategy, Component, input } from '@angular/core';
+import { ExperienceEntry } from '../data/portfolio-content';
 
 @Component({
   selector: 'app-experience-section',
   standalone: true,
-  imports: [NgTemplateOutlet],
   template: `
-    <section id="experience" class="experience-section">
-      <div class="container">
-        <h2>Experience</h2>
-        <div class="experience-list">
-          @for (exp of experience(); track exp.id) {
-            <ng-template #cardContent>
-              <div class="exp-header">
-                <div class="company-brand">
-                  @if (exp.companyLogoUrl && !failedLogos.has(exp.id)) {
-                    <img [src]="resolveMediaUrl(exp.companyLogoUrl)" [alt]="exp.company" class="company-logo" (error)="failedLogos.add(exp.id)">
-                  } @else {
-                    <div class="company-logo-placeholder">{{ getInitials(exp.company) }}</div>
-                  }
-                  <div>
-                    <h3 class="role">{{ exp.role }}</h3>
-                    <h4 class="company-name">
-                      {{ exp.company }}
-                      @if (exp.companyUrl) {
-                        <svg class="external-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                          <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path>
-                          <polyline points="15 3 21 3 21 9"></polyline>
-                          <line x1="10" y1="14" x2="21" y2="3"></line>
-                        </svg>
-                      }
-                    </h4>
-                  </div>
+    <section id="experience" class="section" aria-labelledby="experience-title">
+      <div class="section-shell narrow-shell">
+        <div class="section-heading">
+          <p class="eyebrow">Experience</p>
+          <h2 id="experience-title">Production work, end to end</h2>
+          <p>Backend-heavy roles grounded in integration delivery, performance work, and cross-team problem solving.</p>
+        </div>
+        <div class="timeline">
+          @for (entry of experience(); track entry.company + entry.role) {
+            <article class="experience-card">
+              <div class="timeline-marker" aria-hidden="true"></div>
+              <header>
+                <div class="company">
+                  <img [src]="entry.companyLogo" [alt]="entry.company + ' logo'" width="48" height="48" loading="lazy">
+                  <div><h3>{{ entry.role }}</h3><a [href]="entry.companyUrl" target="_blank" rel="noopener noreferrer">{{ entry.company }} <span aria-hidden="true">↗</span></a></div>
                 </div>
-                <div class="date-badge">{{ exp.startDate }} - {{ exp.endDate || 'Present' }}</div>
-              </div>
-              <p class="description">{{ exp.description }}</p>
-            </ng-template>
-            @if (exp.companyUrl) {
-              <a [href]="exp.companyUrl" target="_blank" rel="noopener" class="exp-card clickable">
-                <ng-container *ngTemplateOutlet="cardContent"></ng-container>
-              </a>
-            } @else {
-              <div class="exp-card">
-                <ng-container *ngTemplateOutlet="cardContent"></ng-container>
-              </div>
-            }
+                <p class="dates">{{ entry.startDate }} — {{ entry.endDate }}</p>
+              </header>
+              <ul>
+                @for (bullet of entry.bullets; track bullet) { <li>{{ bullet }}</li> }
+              </ul>
+            </article>
           }
         </div>
       </div>
     </section>
   `,
   styles: [`
-    .experience-section {
-      padding: 4.5rem 2rem;
-      background: transparent;
-      scroll-margin-top: 70px;
-    }
-    .container {
-      max-width: 900px;
-      margin: 0 auto;
-    }
-    h2 {
-      font-size: 2.25rem;
-      margin-bottom: 2.25rem;
-      text-align: center;
-      background: linear-gradient(90deg, #f8fafc, #94a3b8);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-    }
-    .experience-list {
-      display: flex;
-      flex-direction: column;
-      gap: 1.25rem;
-    }
-    .exp-card {
-      display: block;
-      background: rgba(255, 255, 255, 0.025);
-      backdrop-filter: blur(10px);
-      border: 1px solid rgba(255, 255, 255, 0.06);
-      border-radius: 14px;
-      padding: 1.35rem 1.6rem;
-      text-decoration: none;
-      color: inherit;
-      transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
-    }
-    .exp-card.clickable:hover {
-      transform: translateY(-3px);
-      background: rgba(255, 255, 255, 0.04);
-      border-color: rgba(168, 85, 247, 0.35);
-      box-shadow: 0 10px 25px rgba(124, 58, 237, 0.12);
-    }
-    .exp-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: flex-start;
-      margin-bottom: 0.85rem;
-      flex-wrap: wrap;
-      gap: 0.75rem;
-    }
-    .company-brand {
-      display: flex;
-      align-items: center;
-      gap: 1rem;
-    }
-    .company-logo {
-      width: 44px;
-      height: 44px;
-      border-radius: 10px;
-      object-fit: cover;
-      border: 1px solid rgba(255, 255, 255, 0.1);
-      background: #000;
-    }
-    .company-logo-placeholder {
-      width: 44px;
-      height: 44px;
-      border-radius: 10px;
-      background: linear-gradient(135deg, #7c3aed, #3b82f6);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-weight: 700;
-      font-size: 1.1rem;
-      color: #fff;
-    }
-    .role {
-      margin: 0 0 0.2rem;
-      font-size: 1.2rem;
-      font-weight: 600;
-      color: #f8fafc;
-    }
-    .company-name {
-      margin: 0;
-      font-size: 0.95rem;
-      font-weight: 500;
-      color: #a855f7;
-      display: flex;
-      align-items: center;
-      gap: 0.4rem;
-    }
-    .external-icon {
-      width: 14px;
-      height: 14px;
-      opacity: 0.7;
-      transition: opacity 0.2s ease;
-    }
-    .exp-card:hover .external-icon {
-      opacity: 1;
-    }
-    .date-badge {
-      font-size: 0.82rem;
-      font-weight: 600;
-      color: #94a3b8;
-      background: rgba(255, 255, 255, 0.06);
-      padding: 0.25rem 0.75rem;
-      border-radius: 20px;
-      border: 1px solid rgba(255, 255, 255, 0.05);
-    }
-    .description {
-      margin: 0;
-      color: #cbd5e1;
-      line-height: 1.55;
-      font-size: 0.92rem;
-    }
-    @media (max-width: 640px) {
-      .exp-header {
-        flex-direction: column;
-        align-items: flex-start;
-      }
-    }
+    .timeline { position: relative; display: grid; gap: 1rem; margin-left: 1rem; padding-left: 2rem; border-left: 1px solid var(--border-strong); }
+    .experience-card { position: relative; padding: 1.6rem; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); }
+    .timeline-marker { position: absolute; top: 2rem; left: calc(-2rem - 5px); width: 9px; height: 9px; border: 2px solid var(--background); border-radius: 50%; background: var(--accent); box-shadow: 0 0 0 3px rgba(114,92,255,.18); }
+    header { display: flex; justify-content: space-between; align-items: flex-start; gap: 1.25rem; }
+    .company { display: flex; align-items: center; gap: 1rem; }
+    img { border: 1px solid var(--border); border-radius: .75rem; object-fit: cover; }
+    h3 { font-size: 1.1rem; }
+    .company a { display: inline-block; margin-top: .25rem; color: var(--accent-soft); font-weight: 700; }
+    .dates { color: var(--text-soft); font: 600 .74rem/1.5 var(--font-mono); white-space: nowrap; }
+    ul { display: grid; gap: .7rem; margin: 1.4rem 0 0 4rem; padding-left: 1rem; color: var(--text-muted); }
+    li::marker { color: var(--accent); }
+    @media (max-width: 700px) { .timeline { margin-left: .25rem; padding-left: 1rem; } .timeline-marker { left: calc(-1rem - 5px); } header { flex-direction: column; } ul { margin-left: 0; } }
   `],
-  changeDetection: ChangeDetectionStrategy.OnPush
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ExperienceSectionComponent {
-  experience = input.required<ExperienceEntry[]>();
-  failedLogos = new Set<number>();
-
-  resolveMediaUrl = resolveMediaUrl;
-  getInitials = getInitials;
+  experience = input.required<readonly ExperienceEntry[]>();
 }

@@ -1,31 +1,37 @@
 {
   "name": "frontend",
-  "version": "0.0.0",
+  "version": "2.0.0",
+  "private": true,
+  "type": "module",
   "engines": {
-    "node": ">=24.15.0"
+    "node": ">=24.15.0 <25"
   },
   "scripts": {
     "ng": "ng",
     "start": "ng serve",
-    "build": "node -e \"if(process.env.BACKEND_URL) require('fs').writeFileSync('src/environments/environment.prod.ts', 'export const environment = { production: true, apiBaseUrl: \\\"' + process.env.BACKEND_URL.replace(/\\/+$/, '') + '\\\" };\\n')\" && npx ng build && node -e \"if(require('fs').existsSync('src/_redirects')) require('fs').copyFileSync('src/_redirects', 'dist/frontend/browser/_redirects'); else require('fs').writeFileSync('dist/frontend/browser/_redirects', '/* /index.html 200\\n');\"",
-    "watch": "ng build --watch --configuration development"
+    "build": "ng build",
+    "watch": "ng build --watch --configuration development",
+    "lint": "tsc --noEmit -p tsconfig.app.json",
+    "test": "node scripts/verify-content.mjs",
+    "test:dist": "node scripts/verify-content.mjs --dist"
   },
-  "private": true,
   "dependencies": {
-    "@angular/common": "^22.0.8",
-    "@angular/compiler": "^22.0.8",
-    "@angular/core": "^22.0.8",
-    "@angular/forms": "^22.0.8",
-    "@angular/platform-browser": "^22.0.8",
-    "@angular/router": "^22.0.8",
+    "@angular/common": "22.1.4",
+    "@angular/compiler": "22.1.4",
+    "@angular/core": "22.1.4",
+    "@angular/forms": "22.1.4",
+    "@angular/platform-browser": "22.1.4",
+    "@angular/platform-server": "22.1.4",
+    "@angular/router": "22.1.4",
+    "@angular/ssr": "22.1.6",
     "rxjs": "^7.8.1",
     "tslib": "^2.8.1",
     "zone.js": "~0.15.0"
   },
   "devDependencies": {
-    "@angular-devkit/build-angular": "^22.0.8",
-    "@angular/cli": "^22.0.8",
-    "@angular/compiler-cli": "^22.0.8",
+    "@angular/build": "22.1.6",
+    "@angular/cli": "22.1.6",
+    "@angular/compiler-cli": "22.1.4",
     "@types/node": "^24.0.0",
     "typescript": "~6.0.2"
   }
