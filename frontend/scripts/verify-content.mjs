@@ -71,6 +71,13 @@ if (includeDist) {
     assert.doesNotMatch(html, /\son[a-z]+\s*=/i, `Inline event handler conflicts with the production CSP: ${path}`);
     assert.match(html, /<html[^>]*data-theme="light"/, `Default light theme did not prerender: ${path}`);
     assert.match(html, /<html[^>]*data-motion="full"/, `Motion preference did not prerender: ${path}`);
+    // Cloudflare also sends preload URLs in HTTP Link headers, where the HTML base has no effect.
+    const modulePreloads = [...html.matchAll(/<link\b[^>]*\brel="modulepreload"[^>]*>/g)];
+    assert.ok(modulePreloads.length > 0, `Missing route module preload: ${path}`);
+    for (const [preload] of modulePreloads) {
+      const href = preload.match(/\bhref="([^"]+)"/)?.[1];
+      assert.match(href ?? '', /^\/[^/]/, `Module preload must be root-relative for HTTP Link headers: ${path}`);
+    }
     const initializerPosition = html.indexOf('<script src="theme-init.js"');
     const stylesheetPosition = html.indexOf('<link rel="stylesheet"');
     assert.ok(initializerPosition >= 0 && initializerPosition < stylesheetPosition, `Saved appearance must apply before styles: ${path}`);
