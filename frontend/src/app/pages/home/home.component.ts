@@ -22,9 +22,9 @@ import { portfolioContent } from '../../data/portfolio-content';
   ],
   template: `
     <app-hero />
-    <app-strengths-section [about]="content.profile.about" [strengths]="content.strengths" />
-    <app-experience-section [experience]="content.experience" />
     <app-projects-section [caseStudies]="content.caseStudies" />
+    <app-experience-section [experience]="content.experience" />
+    <app-strengths-section [about]="content.profile.about" [strengths]="content.strengths" />
     <app-skills-section [groups]="content.skillGroups" />
     <app-education-section [education]="content.education" [languages]="content.languages" />
     <app-contact-section />

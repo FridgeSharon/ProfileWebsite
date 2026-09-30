@@ -1,31 +1,16 @@
 import { ChangeDetectionStrategy, Component, input } from '@angular/core';
-import { ExperienceEntry } from '../data/portfolio-content';
-
+import { ExperienceEntry, portfolioContent } from '../data/portfolio-content';
 @Component({
-  selector: 'app-experience-section',
-  standalone: true,
+  selector: 'app-experience-section', standalone: true,
   template: `
-    <section id="experience" class="section" aria-labelledby="experience-title">
-      <div class="section-shell narrow-shell">
-        <div class="section-heading">
-          <p class="eyebrow">Experience</p>
-          <h2 id="experience-title">Production work, end to end</h2>
-          <p>Backend-heavy roles grounded in integration delivery, performance work, and cross-team problem solving.</p>
-        </div>
+    <section id="experience" class="section experience" aria-labelledby="experience-title">
+      <div class="section-shell">
+        <div class="section-heading"><div><p class="eyebrow">{{ heading.eyebrow }}</p><h2 id="experience-title">{{ heading.title }}</h2></div><p>{{ heading.description }}</p></div>
         <div class="timeline">
-          @for (entry of experience(); track entry.company + entry.role) {
-            <article class="experience-card">
-              <div class="timeline-marker" aria-hidden="true"></div>
-              <header>
-                <div class="company">
-                  <img [src]="entry.companyLogo" [alt]="entry.company + ' logo'" width="48" height="48" loading="lazy">
-                  <div><h3>{{ entry.role }}</h3><a [href]="entry.companyUrl" target="_blank" rel="noopener noreferrer">{{ entry.company }} <span aria-hidden="true">↗</span></a></div>
-                </div>
-                <p class="dates">{{ entry.startDate }} — {{ entry.endDate }}</p>
-              </header>
-              <ul>
-                @for (bullet of entry.bullets; track bullet) { <li>{{ bullet }}</li> }
-              </ul>
+          @for (entry of experience(); track entry.role + entry.company) {
+            <article class="entry">
+              <div class="entry-meta"><p class="dates">{{ entry.startDate }} — {{ entry.endDate }}</p><a [href]="entry.companyUrl" target="_blank" rel="noopener noreferrer"><img [src]="entry.companyLogo" alt="" width="32" height="32" loading="lazy">{{ entry.company }} <span aria-hidden="true">↗</span></a></div>
+              <div class="entry-body"><h3>{{ entry.role }}</h3><p class="focus">{{ entry.focus }}</p><ul>@for (bullet of entry.bullets; track bullet) { <li>{{ bullet }}</li> }</ul></div>
             </article>
           }
         </div>
@@ -33,21 +18,22 @@ import { ExperienceEntry } from '../data/portfolio-content';
     </section>
   `,
   styles: [`
-    .timeline { position: relative; display: grid; gap: 1rem; margin-left: 1rem; padding-left: 2rem; border-left: 1px solid var(--border-strong); }
-    .experience-card { position: relative; padding: 1.6rem; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); }
-    .timeline-marker { position: absolute; top: 2rem; left: calc(-2rem - 5px); width: 9px; height: 9px; border: 2px solid var(--background); border-radius: 50%; background: var(--accent); box-shadow: 0 0 0 3px rgba(114,92,255,.18); }
-    header { display: flex; justify-content: space-between; align-items: flex-start; gap: 1.25rem; }
-    .company { display: flex; align-items: center; gap: 1rem; }
-    img { border: 1px solid var(--border); border-radius: .75rem; object-fit: cover; }
-    h3 { font-size: 1.1rem; }
-    .company a { display: inline-block; margin-top: .25rem; color: var(--accent-soft); font-weight: 700; }
-    .dates { color: var(--text-soft); font: 600 .74rem/1.5 var(--font-mono); white-space: nowrap; }
-    ul { display: grid; gap: .7rem; margin: 1.4rem 0 0 4rem; padding-left: 1rem; color: var(--text-muted); }
+    .experience { background: var(--surface); border-block: 1px solid var(--border); }
+    .entry { display: grid; grid-template-columns: .65fr 1.5fr; gap: 3rem; padding: 2.5rem 0; border-top: 1px solid var(--border-strong); }
+    .entry:last-child { padding-bottom: 0; }
+    .dates { color: var(--text-soft); font: .68rem/1.6 var(--font-mono); }
+    .entry-meta a { display: inline-flex; align-items: center; gap: .7rem; margin-top: 1.2rem; font-size: 1rem; font-weight: 600; }
+    .entry-meta a:hover { text-decoration: underline; text-underline-offset: 5px; }
+    img { object-fit: cover; border-radius: 5px; border: 1px solid var(--border); }
+    .entry-meta a span { color: var(--text-soft); font-size: .8rem; }
+    h3 { font-size: 1.4rem; letter-spacing: -.025em; }
+    .focus { margin-top: .55rem; color: var(--accent); font: .65rem/1.6 var(--font-mono); }
+    ul { display: grid; gap: .7rem; margin: 1.2rem 0 0; padding-left: 1rem; color: var(--text-muted); font-size: .9rem; }
     li::marker { color: var(--accent); }
-    @media (max-width: 700px) { .timeline { margin-left: .25rem; padding-left: 1rem; } .timeline-marker { left: calc(-1rem - 5px); } header { flex-direction: column; } ul { margin-left: 0; } }
-  `],
-  changeDetection: ChangeDetectionStrategy.OnPush,
+    @media (max-width: 760px) { .entry { grid-template-columns: 1fr; gap: 1.4rem; padding: 2rem 0; } .entry-meta { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 1rem; } .entry-meta a { margin-top: 0; } .dates { font-size: .62rem; } h3 { font-size: 1.25rem; } }
+  `], changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ExperienceSectionComponent {
   experience = input.required<readonly ExperienceEntry[]>();
+  protected readonly heading = portfolioContent.sections.experience;
 }

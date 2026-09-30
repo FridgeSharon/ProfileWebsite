@@ -1,82 +1,32 @@
 import { ChangeDetectionStrategy, Component } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { portfolioContent } from '../../data/portfolio-content';
-
 @Component({
-  selector: 'app-architecture',
-  standalone: true,
-  imports: [RouterLink],
+  selector: 'app-architecture', standalone: true, imports: [RouterLink],
   template: `
-    <div class="technical-page">
-      <header class="technical-hero section-shell narrow-shell">
-        <p class="eyebrow">About this site</p>
-        <h1>Advanced where it matters. Static where it should be.</h1>
-        <p>This portfolio is a fully static Angular application delivered through Cloudflare Pages. Its architecture prioritizes fast first paint, accessibility, privacy, and predictable operation.</p>
-      </header>
-
-      <section class="section" aria-labelledby="decisions-title">
-        <div class="section-shell narrow-shell">
-          <div class="section-heading"><p class="eyebrow">Technical decisions</p><h2 id="decisions-title">A focused static architecture</h2></div>
-          <div class="decision-grid">
-            @for (item of decisions; track item.title; let index = $index) {
-              <article><span>0{{ index + 1 }}</span><h3>{{ item.title }}</h3><p>{{ item.description }}</p></article>
-            }
-          </div>
-        </div>
-      </section>
-
-      <section class="section flow-section" aria-labelledby="flow-title">
-        <div class="section-shell narrow-shell">
-          <div class="section-heading"><p class="eyebrow">Delivery path</p><h2 id="flow-title">Repository to browser</h2></div>
-          <ol class="flow">
-            <li><strong>Typed content</strong><span>One reviewed source for every page</span></li>
-            <li><strong>Angular static build</strong><span>Prerendered routes and optimized assets</span></li>
-            <li><strong>Cloudflare Pages</strong><span>Git deployment and global CDN delivery</span></li>
-            <li><strong>Your browser</strong><span>No API, database, cookie, or visitor identifier</span></li>
-          </ol>
-        </div>
-      </section>
-
-      <footer class="technical-footer section-shell narrow-shell">
-        <div><h2>Want to inspect the implementation?</h2><p>The implementation is available in the public repository.</p></div>
-        <div class="footer-actions">
-          <a class="button secondary" [href]="profile.repositoryUrl" target="_blank" rel="noopener noreferrer">View repository <span aria-hidden="true">↗</span></a>
-          <a class="text-link" routerLink="/">Back to portfolio</a>
-        </div>
-      </footer>
-    </div>
+    <div class="technical-page section"><div class="section-shell">
+      <a class="text-link back" routerLink="/"><span aria-hidden="true">←</span>{{ site.back }}</a>
+      <header class="technical-hero"><p class="eyebrow">{{ copy.eyebrow }}</p><h1>{{ copy.title }}</h1><p class="intro">{{ copy.description }}</p></header>
+      <section class="decisions" aria-labelledby="decisions-title"><h2 id="decisions-title">{{ copy.decisionsTitle }}</h2><div class="decision-grid">@for (item of copy.decisions; track item.title; let index = $index) { <article><span class="number" aria-hidden="true">0{{ index + 1 }}</span><h3>{{ item.title }}</h3><p>{{ item.description }}</p></article> }</div></section>
+      <section class="flow-section" aria-labelledby="flow-title"><h2 id="flow-title">{{ copy.flowTitle }}</h2><ol class="flow">@for (step of copy.flow; track step.title; let index = $index) { <li data-cursor-light><span class="number" aria-hidden="true">0{{ index + 1 }} ↗</span><strong>{{ step.title }}</strong><span>{{ step.detail }}</span></li> }</ol></section>
+      <footer class="technical-footer"><div><h2>{{ copy.footerTitle }}</h2><p>{{ copy.footerDescription }}</p></div><a class="button primary" data-cursor-light="filled" [href]="profile.repositoryUrl" target="_blank" rel="noopener noreferrer">{{ site.repository }} <span aria-hidden="true">↗</span></a></footer>
+    </div></div>
   `,
   styles: [`
-    .technical-page { padding-bottom: 6rem; }
-    .technical-hero { padding-top: clamp(5rem, 11vw, 9rem); padding-bottom: clamp(4rem, 8vw, 7rem); }
-    .technical-hero h1 { max-width: 850px; font-size: clamp(2.8rem, 6.5vw, 5.5rem); line-height: .98; letter-spacing: -.055em; text-wrap: balance; }
-    .technical-hero > p:last-child { max-width: 720px; margin-top: 1.5rem; color: var(--text-muted); font-size: 1.15rem; }
-    .decision-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 1rem; }
-    .decision-grid article { min-height: 260px; padding: 1.75rem; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); }
-    .decision-grid article > span { color: var(--accent); font: 700 .75rem/1 var(--font-mono); }
-    h3 { margin-top: 4rem; font-size: 1.25rem; }
-    article p { margin-top: .65rem; color: var(--text-muted); }
-    .flow-section { background: rgba(255,255,255,.015); border-block: 1px solid var(--border); }
-    .flow { display: grid; grid-template-columns: repeat(4, 1fr); margin: 0; padding: 0; list-style: none; counter-reset: step; }
-    .flow li { position: relative; min-height: 180px; padding: 1.5rem; border: 1px solid var(--border); border-right: 0; }
-    .flow li:last-child { border-right: 1px solid var(--border); }
-    .flow strong, .flow span { display: block; }
-    .flow strong { margin-top: 3rem; }
-    .flow span { margin-top: .5rem; color: var(--text-soft); font-size: .9rem; }
-    .technical-footer { display: flex; justify-content: space-between; align-items: end; gap: 2rem; padding-top: 5rem; }
-    .technical-footer p { margin-top: .5rem; color: var(--text-muted); }
-    .footer-actions { display: flex; flex-direction: column; align-items: flex-start; gap: 1rem; }
-    .text-link { color: var(--text-soft); font-weight: 700; }
-    @media (max-width: 780px) { .decision-grid, .flow { grid-template-columns: 1fr; } .flow li, .flow li:last-child { min-height: auto; border-right: 1px solid var(--border); border-bottom: 0; } .flow li:last-child { border-bottom: 1px solid var(--border); } .flow strong, h3 { margin-top: 1.5rem; } .technical-footer { align-items: flex-start; flex-direction: column; } }
-  `],
-  changeDetection: ChangeDetectionStrategy.OnPush,
+    .technical-page { padding-top: 2rem; } .back { margin-bottom: 3.5rem; }
+    .technical-hero { max-width: 850px; margin-bottom: 5rem; }
+    h1 { font-size: clamp(3rem, 6vw, 5.7rem); letter-spacing: -.06em; max-width: 800px; }
+    .intro { max-width: 690px; margin-top: 1.5rem; font-size: 1.1rem; color: var(--text-muted); }
+    h2 { font-size: clamp(1.6rem, 3vw, 2.4rem); letter-spacing: -.04em; }
+    .decision-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 2rem 3rem; margin-top: 2rem; }
+    article { padding-top: 1.5rem; border-top: 1px solid var(--border-strong); }
+    .number { color: var(--text-soft); font: .68rem/1.5 var(--font-mono); }
+    h3 { margin-top: 1.4rem; font-size: 1.15rem; } article p { margin-top: .75rem; color: var(--text-muted); font-size: .93rem; }
+    .flow-section { margin-top: 4.5rem; } .flow { display: grid; grid-template-columns: repeat(4, 1fr); padding: 0; margin: 2rem 0 0; list-style: none; border: 1px solid var(--border); border-radius: 6px; overflow: hidden; }
+    .flow li { padding: 1.5rem; background: var(--surface); } .flow li + li { border-left: 1px solid var(--border); }
+    .flow strong { display: block; margin-top: 1.75rem; font-size: .95rem; } .flow li > span:last-child { display: block; margin-top: .5rem; font-size: .78rem; color: var(--text-muted); }
+    .technical-footer { display: flex; align-items: center; justify-content: space-between; gap: 2rem; margin-top: 4.5rem; padding-top: 2.5rem; border-top: 1px solid var(--border); } .technical-footer p { margin-top: .75rem; color: var(--text-muted); }
+    @media (max-width: 760px) { .decision-grid, .flow { grid-template-columns: 1fr; } .flow li + li { border-left: 0; border-top: 1px solid var(--border); } .flow strong { margin-top: .7rem; } .technical-footer { flex-direction: column; align-items: start; } }
+  `], changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class ArchitectureComponent {
-  protected readonly profile = portfolioContent.profile;
-  protected readonly decisions = [
-    { title: 'Static by design', description: 'Portfolio content is compiled with the application and served as static HTML and assets.' },
-    { title: 'Prerendered for clarity', description: 'Each route ships meaningful HTML for fast rendering, resilient navigation, search engines, and link previews.' },
-    { title: 'Private by default', description: 'The site has no contact form, visitor ID, analytics beacon, application cookie, or personal-data store.' },
-    { title: 'Accessible interaction', description: 'Semantic structure, keyboard navigation, visible focus, responsive layouts, and reduced-motion behavior are part of the implementation.' },
-  ];
-}
+export class ArchitectureComponent { protected readonly profile = portfolioContent.profile; protected readonly site = portfolioContent.site; protected readonly copy = portfolioContent.architecture; }

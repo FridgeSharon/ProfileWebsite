@@ -1,68 +1,82 @@
 import { ChangeDetectionStrategy, Component } from '@angular/core';
+import { RouterLink } from '@angular/router';
 import { portfolioContent } from '../data/portfolio-content';
 
 @Component({
-  selector: 'app-hero',
-  standalone: true,
+  selector: 'app-hero', standalone: true, imports: [RouterLink],
   template: `
     <section class="hero" aria-labelledby="hero-title">
-      <div class="hero-grid section-shell">
-        <div class="hero-copy">
-          <p class="eyebrow"><span class="status-dot" aria-hidden="true"></span>{{ profile.availability }}</p>
-          <p class="role">{{ profile.role }}</p>
-          <h1 id="hero-title">{{ profile.headline }}</h1>
-          <p class="summary">{{ profile.summary }}</p>
-          <div class="actions">
-            <a class="button primary" [href]="profile.linkedinUrl" target="_blank" rel="noopener noreferrer">
-              Connect on LinkedIn
-              <span aria-hidden="true">↗</span>
-            </a>
-            <a class="button secondary" href="#experience">View experience</a>
+      <div class="section-shell">
+        <div class="hero-grid">
+          <div class="hero-copy">
+            <p class="eyebrow"><span class="dot" aria-hidden="true"></span>{{ hero.eyebrow }}</p>
+            <h1 id="hero-title">{{ profile.headline }}<br><span>{{ profile.headlineAccent }}</span></h1>
+            <p class="summary">{{ profile.summary }}</p>
+            <div class="actions">
+              <a class="button primary" data-cursor-light="filled" routerLink="/" fragment="work">{{ hero.workLink }} <span aria-hidden="true">↓</span></a>
+              <a class="text-link" routerLink="/cv">{{ site.cv }} <span aria-hidden="true">↗</span></a>
+            </div>
+            <p class="availability"><span aria-hidden="true">✳</span> {{ profile.availability }}</p>
           </div>
+          <figure class="system-map" data-cursor-light="map" [attr.aria-label]="hero.diagramLabel">
+            <div class="map-top"><span>{{ hero.diagramLabel }}</span><span aria-hidden="true">↗</span></div>
+            <ol>
+              @for (node of hero.diagramNodes; track node.label; let index = $index) {
+                <li [class.center-node]="index === 1">
+                  <span class="node-number" aria-hidden="true">0{{ index + 1 }}</span>
+                  <div><span class="node-label">{{ node.label }}</span><strong>{{ node.value }}</strong><small>{{ node.detail }}</small></div>
+                  <span class="node-icon" aria-hidden="true">{{ index === 0 ? '↗' : index === 1 ? '⌘' : '↥' }}</span>
+                </li>
+              }
+            </ol>
+            <figcaption><span class="map-dot" aria-hidden="true"></span>{{ hero.diagramCaption }}</figcaption>
+          </figure>
         </div>
-        <aside class="system-card" aria-label="Professional profile summary">
-          <div class="system-topline">
-            <span>PROFILE / {{ profile.name.toUpperCase() }}</span>
-            <span class="online">AVAILABLE</span>
-          </div>
-          <dl>
-            <div><dt>Focus</dt><dd>Backend systems & integrations</dd></div>
-            <div><dt>Core</dt><dd>TypeScript · Node.js · APIs</dd></div>
-            <div><dt>Cloud</dt><dd>AWS · Docker · CI/CD</dd></div>
-            <div><dt>Location</dt><dd>{{ profile.location }}</dd></div>
-          </dl>
-          <div class="system-footer" aria-hidden="true">
-            <span>01</span><span>RELIABILITY</span><span>02</span><span>DELIVERY</span>
-          </div>
-        </aside>
+        <dl class="facts">
+          @for (fact of hero.facts; track fact.label) { <div><dt>{{ fact.label }}</dt><dd>{{ fact.value }}</dd></div> }
+        </dl>
       </div>
     </section>
   `,
   styles: [`
-    .hero { display: grid; min-height: min(820px, calc(100svh - 72px)); align-items: center; padding: clamp(5rem, 11vw, 9rem) 1.25rem 5rem; }
-    .hero-grid { display: grid; grid-template-columns: minmax(0, 1.25fr) minmax(320px, .75fr); gap: clamp(2rem, 6vw, 6rem); align-items: center; }
-    .hero-copy { max-width: 760px; }
-    .eyebrow { display: flex; align-items: center; gap: .65rem; margin-bottom: 1.7rem; }
-    .status-dot { width: .55rem; height: .55rem; border-radius: 50%; background: var(--success); box-shadow: 0 0 0 .35rem rgba(72, 216, 158, .12); }
-    .role { margin-bottom: .8rem; color: var(--accent-soft); font: 700 .88rem/1.4 var(--font-mono); letter-spacing: .1em; text-transform: uppercase; }
-    h1 { max-width: 850px; font-size: clamp(2.7rem, 5.5vw, 5rem); line-height: .98; letter-spacing: -.055em; text-wrap: balance; }
-    .summary { max-width: 700px; margin-top: 1.7rem; color: var(--text-muted); font-size: clamp(1.05rem, 1.8vw, 1.25rem); line-height: 1.7; }
-    .actions { display: flex; flex-wrap: wrap; gap: .75rem; margin-top: 2rem; }
-    .system-card { position: relative; padding: 1.25rem; background: linear-gradient(150deg, rgba(18, 22, 37, .95), rgba(10, 13, 23, .88)); border: 1px solid var(--border-strong); border-radius: var(--radius-xl); box-shadow: 0 30px 90px rgba(0,0,0,.4); overflow: hidden; }
-    .system-card::before { content: ''; position: absolute; inset: 0; background: linear-gradient(rgba(255,255,255,.02) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,.02) 1px, transparent 1px); background-size: 24px 24px; mask-image: linear-gradient(to bottom, black, transparent); pointer-events: none; }
-    .system-topline, .system-footer { position: relative; display: flex; justify-content: space-between; gap: 1rem; color: var(--text-soft); font: 700 .65rem/1.3 var(--font-mono); letter-spacing: .09em; }
-    .online { color: var(--success); }
-    dl { position: relative; display: grid; margin: 3.5rem 0; }
-    dl div { display: grid; grid-template-columns: 80px 1fr; gap: 1rem; padding: .95rem 0; border-bottom: 1px solid var(--border); }
-    dt { color: var(--text-soft); font: 600 .72rem/1.5 var(--font-mono); text-transform: uppercase; }
-    dd { color: var(--text); font-weight: 600; }
-    .system-footer { justify-content: flex-start; flex-wrap: wrap; color: var(--accent-soft); }
-    .system-footer span:nth-child(odd) { color: var(--text-soft); }
-    @media (max-width: 900px) { .hero { min-height: auto; } .hero-grid { grid-template-columns: 1fr; } .system-card { max-width: 560px; } }
-    @media (max-width: 520px) { .actions, .button { width: 100%; } .system-card { display: none; } }
-  `],
-  changeDetection: ChangeDetectionStrategy.OnPush,
+    .hero { padding: clamp(4rem, 7.2vw, 7rem) 2.25rem 0; }
+    .hero-grid { display: grid; grid-template-columns: minmax(0, 1.35fr) minmax(0, .8fr); gap: clamp(2rem, 5vw, 5rem); align-items: center; }
+    .hero-copy > .eyebrow { display: flex; align-items: center; gap: .7rem; margin-bottom: 1.8rem; }
+    .dot { width: 7px; height: 7px; border-radius: 50%; background: var(--accent); }
+    h1 { font-size: clamp(3.6rem, 6.3vw, 5.9rem); line-height: 1.01; letter-spacing: -.065em; font-weight: 600; }
+    h1 span { color: var(--accent); }
+    .summary { max-width: 550px; margin-top: 1.75rem; color: var(--text-muted); font-size: 1.12rem; line-height: 1.8; }
+    .actions { display: flex; align-items: center; flex-wrap: wrap; gap: 1.75rem; margin-top: 1.9rem; }
+    .availability { margin-top: 2rem; color: var(--text-soft); font-size: .76rem; }
+    .availability span { color: var(--accent); font-size: 1rem; margin-right: .3rem; }
+    .system-map { position: relative; padding: 1.7rem; color: #f4f7eb; background: #183b2f; border-radius: 12px; overflow: hidden; }
+    .system-map::before { content: ''; position: absolute; inset: 0; background: radial-gradient(#cde4bb30 1px, transparent 1px); background-size: 20px 20px; opacity: .5; pointer-events: none; }
+    .map-top { position: relative; display: flex; align-items: center; justify-content: space-between; gap: 1rem; color: #c1d5c8; font: 400 .6rem/1.5 var(--font-mono); letter-spacing: .04em; text-transform: uppercase; }
+    .map-top > span:last-child { font-size: 1.3rem; }
+    ol { position: relative; display: grid; gap: 1.6rem; list-style: none; padding: 0; margin: 2.5rem 0; }
+    li { position: relative; display: flex; align-items: center; gap: .8rem; border: 1px solid #789b843d; border-radius: 6px; padding: 1rem; background: #214536; }
+    li:not(:last-child)::after { content: ''; position: absolute; width: 1px; height: 1.65rem; background: #8fae89; top: 100%; left: 50%; }
+    li.center-node { background: var(--lime); color: #203927; border-color: var(--lime); transform: translateX(-.45rem); box-shadow: .45rem .45rem 0 #0f2c22; }
+    .node-number { align-self: start; padding-top: 3px; color: #a8c8ae; font: .6rem/1.5 var(--font-mono); }
+    .center-node .node-number { color: #4c6341; }
+    .node-label { display: block; margin-bottom: .2rem; font: .58rem/1.5 var(--font-mono); text-transform: uppercase; letter-spacing: .07em; opacity: .8; }
+    strong { display: block; font-size: 1.03rem; font-weight: 600; }
+    small { display: block; margin-top: .2rem; font: .62rem/1.5 var(--font-mono); color: #baceba; }
+    .center-node small { color: #4a6140; }
+    .node-icon { margin-left: auto; font-size: 1.4rem; font-family: var(--font-mono); }
+    figcaption { position: relative; display: flex; align-items: center; gap: .5rem; color: #c1d5c8; font-size: .7rem; }
+    .map-dot { width: 5px; height: 5px; background: var(--lime); border-radius: 50%; flex-shrink: 0; }
+    .facts { display: grid; grid-template-columns: repeat(3, 1fr); gap: 2rem; margin-top: clamp(3rem, 6vw, 5.5rem); padding: 1.8rem 0; border-block: 1px solid var(--border); }
+    .facts div { display: flex; flex-direction: column-reverse; gap: .2rem; }
+    .facts div + div { border-left: 1px solid var(--border); padding-left: 2rem; }
+    dt { color: var(--text-soft); font-size: .74rem; } dd { font-size: 1.2rem; font-weight: 600; letter-spacing: -.02em; }
+    @media (max-width: 980px) { .hero-grid { grid-template-columns: minmax(0, 1.2fr) minmax(0, .9fr); gap: 2rem; } h1 { font-size: clamp(3.3rem, 6vw, 5rem); } .system-map { padding: 1.2rem; } .node-icon { display: none; } }
+    @media (max-width: 760px) { .hero { padding: 3.5rem 1.25rem 0; } .hero-grid { grid-template-columns: 1fr; gap: 2.75rem; } h1 { font-size: clamp(3.1rem, 9vw, 4.8rem); } .hero-copy { max-width: 610px; } .summary { font-size: 1rem; } .system-map { max-width: 540px; width: 100%; padding: 1.5rem; } ol { margin: 1.5rem 0; gap: 1rem; } li:not(:last-child)::after { height: 1.05rem; } .node-icon { display: block; } .facts { gap: 1rem; } .facts div + div { padding-left: 1rem; } dd { font-size: .95rem; } dt { font-size: .65rem; } }
+    @media (max-width: 380px) { .facts { grid-template-columns: 1fr; gap: .9rem; } .facts div { flex-direction: row-reverse; justify-content: space-between; gap: 1rem; align-items: baseline; } .facts div + div { border: 0; padding: 0; } .actions { gap: 1rem; } }
+  `], changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class HeroComponent {
   protected readonly profile = portfolioContent.profile;
+  protected readonly hero = portfolioContent.hero;
+  protected readonly site = portfolioContent.site;
 }
