@@ -82,7 +82,7 @@ export const portfolioContent = {
     {
       role: 'Fullstack Developer & Integrations Engineer', company: 'Fareplace',
       companyUrl: 'https://www.linkedin.com/company/fareplace/', companyLogo: '/assets/company-fareplace.jpg',
-      startDate: 'May 2024', endDate: 'August 2026', focus: 'Integrations · Data flows · AWS',
+      startDate: 'May 2024', endDate: 'July 2026', focus: 'Integrations · Data flows · AWS',
       bullets: [
         'Designed and maintained Node.js/TypeScript integration microservices connecting Scala backends, web applications, and external providers through REST, SOAP, and Protobuf.',
         'Built data synchronization integrations with Redis caching and MongoDB/MySQL for efficient data access and processing.',
